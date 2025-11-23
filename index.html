@@ -31,6 +31,7 @@
                         'fade-in': 'fadeIn 0.8s ease-in-out forwards',
                         'bounce-gentle': 'bounce-gentle 2s infinite',
                         'blob': 'blob 7s infinite',
+                        'glass-break': 'glassBreak 0.6s ease-in forwards',
                     },
                     keyframes: {
                         pop: {
@@ -50,6 +51,11 @@
                             '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
                             '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
                             '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        glassBreak: {
+                            '0%': { transform: 'scale(1)', opacity: '1' },
+                            '30%': { transform: 'scale(0.95) rotate(-5deg)', opacity: '0.9' }, /* Tension before break */
+                            '100%': { transform: 'scale(1.5) rotate(20deg) translateY(50px)', opacity: '0', filter: 'blur(4px)' } /* Shatter */
                         }
                     }
                 }
@@ -200,7 +206,7 @@
                 class="w-24 h-24 object-contain drop-shadow-2xl"
             >
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center relative z-10">Welcome to LIKApos</h1>
+        <!-- REMOVED "Welcome to LIKApos" TITLE -->
         <p class="text-gray-400 mb-8 text-lg text-center relative z-10">Please select your language / Ju lutem zgjidhni gjuhën</p>
         
         <div class="flex flex-col sm:flex-row gap-6 w-full max-w-md relative z-10">
@@ -210,11 +216,29 @@
                 <span class="block text-sm text-gray-400 group-hover:text-blue-100 mt-2">Professional POS</span>
             </button>
 
-            <button onclick="setLanguage('sq')" class="flex-1 group relative p-6 bg-slate-800/50 backdrop-blur-md rounded-2xl hover:bg-red-600/90 transition-all duration-300 border border-slate-700/50 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 text-center hover:-translate-y-1">
-                <span class="text-3xl mb-2 block">🇦🇱</span>
-                <span class="text-xl font-bold text-white">Shqip</span>
-                <span class="block text-sm text-gray-400 group-hover:text-red-100 mt-2">POS Profesional</span>
-            </button>
+            <!-- Albanian Button Container (Relative for Popup) -->
+            <div class="flex-1 relative">
+                <!-- Kosovo Suggestion Popup -->
+                <div id="kosovo-popup" class="absolute -top-16 left-1/2 transform -translate-x-1/2 w-48 z-50 transition-all duration-300">
+                    <div class="bg-slate-700/90 backdrop-blur-md text-white px-4 py-2 rounded-xl shadow-2xl border border-slate-500/50 flex flex-col items-center">
+                        <div class="flex items-center gap-2 font-bold whitespace-nowrap">
+                            <span class="text-xl">🇽🇰</span>
+                            <span>A don shqip?</span>
+                        </div>
+                        <div class="w-full bg-slate-600 rounded-full h-1 mt-2 overflow-hidden">
+                            <div id="kosovo-timer-bar" class="bg-blue-400 h-full w-full transition-all ease-linear duration-[5000ms]"></div>
+                        </div>
+                        <!-- Little triangle arrow at bottom -->
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-slate-700/90"></div>
+                    </div>
+                </div>
+
+                <button onclick="setLanguage('sq')" class="w-full h-full group relative p-6 bg-slate-800/50 backdrop-blur-md rounded-2xl hover:bg-red-600/90 transition-all duration-300 border border-slate-700/50 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 text-center hover:-translate-y-1">
+                    <span class="text-3xl mb-2 block">🇦🇱</span>
+                    <span class="text-xl font-bold text-white">Shqip</span>
+                    <span class="block text-sm text-gray-400 group-hover:text-red-100 mt-2">POS Profesional</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -348,7 +372,6 @@
             </div>
 
             <!-- Mockup / Visual (With Slider & Tilt) -->
-            <!-- ADDED: shadow-blue-500/20 for that premium colored glow -->
             <div class="mockup-perspective max-w-5xl mx-auto px-4 sm:px-0 pb-12">
                 <div id="mockup-wrapper" class="mockup-tilt relative rounded-xl shadow-2xl shadow-blue-900/20 dark:shadow-black/50 overflow-hidden border border-gray-200 dark:border-slate-700/50 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer ring-1 ring-white/50 dark:ring-white/5" onclick="nextSlide()">
                    
@@ -437,7 +460,7 @@
     <!-- Detailed Capabilities -->
     <section class="py-24 bg-gray-50 dark:bg-slate-900/50 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
-            
+            <!-- Detail Blocks (Same content) -->
             <!-- Detail Block 1: POS TERMINAL -->
             <div class="flex flex-col md:flex-row items-center gap-16">
                 <div class="flex-1 space-y-8">
@@ -451,6 +474,7 @@
                             <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
                             <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_pos_1">Professional Photo Grid Layout (Small, Medium, Large, List)</span>
                         </li>
+                        <!-- Other list items skipped for brevity, they are identical to previous -->
                         <li class="flex items-start gap-4 group">
                              <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
                             <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_pos_2">Instant Search via Text or Barcode Scanner</span>
@@ -494,7 +518,6 @@
                         </li>
                     </ul>
                 </div>
-                <!-- IMAGE UPDATED (INVENTORY) -->
                 <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043" 
@@ -531,7 +554,6 @@
                         </li>
                     </ul>
                 </div>
-                <!-- IMAGE UPDATED (SYSTEM DATA) -->
                 <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723" 
@@ -541,7 +563,7 @@
                 </div>
             </div>
 
-            <!-- Detail Block 4: DARK MODE (NEW) -->
+            <!-- Detail Block 4: DARK MODE -->
             <div class="flex flex-col md:flex-row-reverse items-center gap-16">
                 <div class="flex-1 space-y-8">
                      <div class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-xs">
@@ -591,8 +613,7 @@
             </p>
 
             <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                
-                <!-- Card 1: Web App -->
+                <!-- Card 1 -->
                 <div class="p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700">
                     <div class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
                         <i data-lucide="globe" class="w-8 h-8"></i>
@@ -604,7 +625,7 @@
                     </a>
                 </div>
 
-                <!-- Card 2: Setup (Featured) -->
+                <!-- Card 2 -->
                 <div class="p-8 rounded-3xl shadow-2xl hover:shadow-blue-900/50 hover:-translate-y-2 transition-all duration-300 border-2 border-blue-400 dark:border-blue-500 relative bg-white dark:bg-slate-800 scale-105 z-10">
                     <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">RECOMMENDED</div>
                     <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
@@ -617,7 +638,7 @@
                     </a>
                 </div>
 
-                <!-- Card 3: Portable -->
+                <!-- Card 3 -->
                 <div class="p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700">
                     <div class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
                         <i data-lucide="package" class="w-8 h-8"></i>
@@ -661,6 +682,60 @@
 
     <!-- Scripts -->
     <script>
+        // --- HACKER/DECODING TEXT EFFECT ---
+        const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=[]{}|;':\",./<>?";
+        
+        function scrambleText(element, finalText) {
+            let iteration = 0;
+            const originalText = element.innerText;
+            
+            // If text hasn't changed, don't re-animate
+            if (originalText === finalText) return; 
+            
+            clearInterval(element.dataset.interval);
+            
+            element.dataset.interval = setInterval(() => {
+                element.innerText = finalText
+                    .split("")
+                    .map((letter, index) => {
+                        if (index < iteration) {
+                            return finalText[index];
+                        }
+                        return hackerChars[Math.floor(Math.random() * 62)];
+                    })
+                    .join("");
+                
+                if (iteration >= finalText.length) { 
+                    clearInterval(element.dataset.interval);
+                }
+                
+                iteration += 1 / 3; // Speed of decoding
+            }, 30);
+        }
+
+        // --- KOSOVO POPUP LOGIC ---
+        function startKosovoPopupCountdown() {
+            const popup = document.getElementById('kosovo-popup');
+            const timerBar = document.getElementById('kosovo-timer-bar');
+            
+            if (!popup) return;
+
+            // Trigger the bar animation immediately
+            setTimeout(() => {
+                timerBar.style.width = '0%';
+            }, 100);
+
+            // Wait 5 seconds, then break glass
+            setTimeout(() => {
+                if (popup && popup.style.display !== 'none') {
+                    popup.classList.add('animate-glass-break');
+                    setTimeout(() => {
+                        popup.style.display = 'none';
+                    }, 600);
+                }
+            }, 5100);
+        }
+
         // --- SLIDER CONFIG & LOGIC ---
         const sliderImages = [
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/1.jpg?updatedAt=1763932046790",
@@ -674,7 +749,7 @@
         let currentSlide = 0;
         const slideInterval = 5000; 
         let sliderIntervalId;
-        let isAnimating = false; // Flag to prevent double clicks and stop tilt
+        let isAnimating = false;
 
         function initSlider() {
             const container = document.getElementById('slider-container');
@@ -695,69 +770,57 @@
             sliderIntervalId = setInterval(nextSlide, slideInterval);
         }
 
-        // --- NEW PROFESSIONAL 3D SWAP ANIMATION ---
+        // 3D SWAP ANIMATION
         function nextSlide() {
             if (isAnimating) return;
-            
             const images = document.querySelectorAll('.slide-image');
             if(images.length === 0) return;
-            
             const wrapper = document.getElementById('mockup-wrapper');
             if (!wrapper) return;
 
             isAnimating = true;
-            clearInterval(sliderIntervalId); // Stop auto timer while animating
+            clearInterval(sliderIntervalId);
 
-            // PHASE 1: ROTATE OUT (Recede & Turn 90deg)
-            // Using inline styles to override specific Tilt transforms
             wrapper.style.transition = 'transform 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.5s ease-in, filter 0.5s ease-in';
-            // Scale down slightly to give depth, rotate Y 90deg to hide face
             wrapper.style.transform = 'perspective(2500px) rotateY(90deg) scale(0.85)';
             wrapper.style.opacity = '0.7';
-            wrapper.style.filter = 'blur(8px)'; // Speed motion blur
+            wrapper.style.filter = 'blur(8px)';
 
-            // PHASE 2: SWAP CONTENT (Hidden)
             setTimeout(() => {
-                // Swap active class
                 images[currentSlide].classList.remove('active');
                 currentSlide = (currentSlide + 1) % images.length;
                 images[currentSlide].classList.add('active');
 
-                // Instant jump to opposite angle (-90deg) so it rotates IN from the other side
                 wrapper.style.transition = 'none';
                 wrapper.style.transform = 'perspective(2500px) rotateY(-90deg) scale(0.85)';
                 
-                // Force Reflow
                 void wrapper.offsetWidth;
 
-                // PHASE 3: ROTATE IN (Pop back to 0)
-                // Elastic/Bounce effect for "Professional" feel
                 setTimeout(() => {
                     wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease-out, filter 0.6s ease-out';
                     wrapper.style.transform = 'perspective(2500px) rotateY(0deg) scale(1)';
                     wrapper.style.opacity = '1';
                     wrapper.style.filter = 'blur(0px)';
 
-                    // Cleanup
                     setTimeout(() => {
                         isAnimating = false;
-                        wrapper.style.transition = ''; // clear inline transition to let CSS take over
-                        wrapper.style.transform = ''; // clear inline transform
-                        startAutoSlide(); // Restart timer
+                        wrapper.style.transition = ''; 
+                        wrapper.style.transform = ''; 
+                        startAutoSlide(); 
                     }, 600);
                 }, 50);
-
-            }, 500); // Wait for Phase 1 to finish
+            }, 500);
         }
         
-        document.addEventListener('DOMContentLoaded', initSlider);
+        document.addEventListener('DOMContentLoaded', () => {
+            initSlider();
+            startKosovoPopupCountdown(); 
+        });
 
-        // --- MOCKUP TILT LOGIC ---
         const mockupWrapper = document.getElementById('mockup-wrapper');
         if(mockupWrapper) {
             mockupWrapper.addEventListener('mousemove', (e) => {
-                if (isAnimating) return; // Don't tilt while rotating
-
+                if (isAnimating) return;
                 const rect = mockupWrapper.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -773,7 +836,6 @@
             });
         }
 
-        // --- CONTENT DATA (Long Texts) ---
         const contentData = {
             en: {
                 privacy_title: "Privacy Policy & Terms of Service",
@@ -956,9 +1018,18 @@
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) el.innerText = translations[lang][key];
+                if (translations[lang][key]) {
+                    // CHANGED: Use scrambleText instead of direct assignment
+                    scrambleText(el, translations[lang][key]);
+                }
             });
-            document.getElementById('current-lang-display').innerText = lang.toUpperCase();
+            
+            // Update Language Display in Navbar with animation
+            const langDisplay = document.getElementById('current-lang-display');
+            if(langDisplay) {
+                scrambleText(langDisplay, lang.toUpperCase());
+            }
+
             document.getElementById('language-modal').classList.add('hidden-modal');
             document.body.classList.remove('overflow-hidden');
         }
@@ -999,7 +1070,6 @@
                 const hour = new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}).split(',')[1].trim().split(':')[0];
                 const isPm = new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}).includes('PM');
                 const hourNum = parseInt(hour);
-                // Simple check: if PM and >= 6, or AM and < 6
                 if ((isPm && hourNum >= 6 && hourNum !== 12) || (!isPm && (hourNum < 6 || hourNum === 12))) return true;
                 return false;
             } catch (e) {

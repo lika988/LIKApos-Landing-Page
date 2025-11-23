@@ -24,6 +24,15 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
+                    animation: {
+                        'pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                    },
+                    keyframes: {
+                        pop: {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.1)' },
+                        }
+                    }
                 }
             }
         }
@@ -56,6 +65,37 @@
         /* Content Modal Specific */
         #info-modal {
             z-index: 90;
+        }
+
+        /* LIKA Link Animation */
+        .lika-link {
+            display: inline-block;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        
+        .lika-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #3b82f6;
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+
+        .lika-link:hover {
+            transform: scale(1.2) translateY(-1px);
+            color: #3b82f6;
+            text-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .lika-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
         }
     </style>
 </head>
@@ -474,7 +514,7 @@
                 </div>
             </div>
             <div class="text-center text-sm text-gray-400 dark:text-gray-600">
-                <p>&copy; <span id="year"></span> LIKApos. <span data-i18n="foot_rights">Open Source Project.</span></p>
+                <p>&copy; <span id="year"></span> LIKApos. MADE WITH <span class="text-red-500">❤️</span> <a href="https://likaapps.com" target="_blank" class="lika-link font-bold">LIKA</a>.</p>
             </div>
         </div>
     </footer>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth scroll-pt-24">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +11,12 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Tailwind Configuration for Dark Mode -->
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -23,11 +24,13 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     animation: {
                         'pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'fade-in': 'fadeIn 0.8s ease-in-out forwards',
                         'bounce-gentle': 'bounce-gentle 2s infinite',
+                        'blob': 'blob 7s infinite',
                     },
                     keyframes: {
                         pop: {
@@ -41,6 +44,12 @@
                         'bounce-gentle': {
                             '0%, 100%': { transform: 'translateY(-5%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
                             '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
                         }
                     }
                 }
@@ -59,12 +68,13 @@
 
         /* Mockup Specific 3D settings */
         .mockup-perspective {
-            perspective: 2000px; /* Lower perspective for subtle depth */
+            perspective: 2500px; /* Increased perspective for better rotation visual */
         }
         .mockup-tilt {
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out; /* Very fast response for mouse tracking */
-            will-change: transform;
+            will-change: transform, opacity, filter;
+            /* Default transition for tilt - will be overridden by JS during animation */
+            transition: transform 0.1s ease-out; 
         }
         
         /* Modal Styles */
@@ -77,15 +87,8 @@
             pointer-events: none;
         }
         
-        /* Language Modal Specific */
-        #language-modal {
-            z-index: 100;
-        }
-
-        /* Content Modal Specific */
-        #info-modal {
-            z-index: 90;
-        }
+        #language-modal { z-index: 100; }
+        #info-modal { z-index: 90; }
 
         /* LIKA Link Animation */
         .lika-link {
@@ -118,20 +121,22 @@
             transform-origin: bottom left;
         }
         
-        /* Image Slider Transitions */
+        /* Image Slider Styles - Simplified for 3D Flip */
         .slide-image {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: fill; /* Ensures exact fit to container */
+            object-fit: cover; 
+            background-color: transparent; 
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            cursor: pointer;
+            /* We remove the transition here because the container flips now */
+            display: none; 
         }
         .slide-image.active {
             opacity: 1;
             z-index: 10;
+            display: block;
         }
 
         /* Click Me Badge */
@@ -150,23 +155,13 @@
             opacity: 1;
         }
 
-        /* --- NEW: Funny Logo Animation --- */
+        /* Logo Animation */
         @keyframes gap-snap {
-            0%, 30% { 
-                transform: translateX(15px) rotate(12deg); /* The Gap: LIKA | | pos */
-            }
-            40% { 
-                transform: translateX(-6px) scale(0.8, 1.2); /* The Crash (Squash) */
-            }
-            50% { 
-                transform: translateX(4px) scale(1.1, 0.9); /* The Rebound (Stretch) */
-            }
-            60% { 
-                transform: translateX(0) scale(1); /* Back to normal */
-            }
-            100% { 
-                transform: translateX(0); /* Pause before repeating */
-            }
+            0%, 30% { transform: translateX(15px) rotate(12deg); }
+            40% { transform: translateX(-6px) scale(0.8, 1.2); }
+            50% { transform: translateX(4px) scale(1.1, 0.9); }
+            60% { transform: translateX(0) scale(1); }
+            100% { transform: translateX(0); }
         }
 
         .logo-pos-anim {
@@ -174,40 +169,58 @@
             animation: gap-snap 4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
             transform-origin: bottom center;
         }
+
+        /* Soft Gradient Backgrounds for Hero */
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(80px);
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-900 dark:bg-slate-900 dark:text-white transition-colors duration-300 font-sans overflow-hidden">
+<body class="bg-gray-50 text-slate-900 dark:bg-[#0B1120] dark:text-white transition-colors duration-500 font-sans overflow-x-hidden">
 
     <!-- Language Selection Modal (Overlay) -->
-    <div id="language-modal" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center p-4 modal-overlay">
-        <div class="mb-8 animate-bounce">
+    <div id="language-modal" class="fixed inset-0 bg-[#0B1120] flex flex-col items-center justify-center p-4 modal-overlay">
+        <!-- Background Glows -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-blob"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+        </div>
+
+        <div class="mb-8 animate-bounce relative z-10">
             <img 
                 src="https://ik.imagekit.io/bufi/icon%20LIKApos/icon.png?updatedAt=1763904694719" 
                 alt="LIKApos Logo" 
                 class="w-24 h-24 object-contain drop-shadow-2xl"
             >
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">Welcome to LIKApos</h1>
-        <p class="text-gray-400 mb-8 text-lg">Please select your language / Ju lutem zgjidhni gjuhën</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center relative z-10">Welcome to LIKApos</h1>
+        <p class="text-gray-400 mb-8 text-lg text-center relative z-10">Please select your language / Ju lutem zgjidhni gjuhën</p>
         
-        <div class="flex flex-col sm:flex-row gap-6 w-full max-w-md">
-            <button onclick="setLanguage('en')" class="flex-1 group relative p-6 bg-slate-800 rounded-2xl hover:bg-blue-600 transition-all duration-300 border border-slate-700 hover:border-blue-500 text-center">
+        <div class="flex flex-col sm:flex-row gap-6 w-full max-w-md relative z-10">
+            <button onclick="setLanguage('en')" class="flex-1 group relative p-6 bg-slate-800/50 backdrop-blur-md rounded-2xl hover:bg-blue-600/90 transition-all duration-300 border border-slate-700/50 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 text-center hover:-translate-y-1">
                 <span class="text-3xl mb-2 block">🇺🇸</span>
                 <span class="text-xl font-bold text-white">English</span>
-                <span class="block text-sm text-gray-400 group-hover:text-blue-200 mt-2">Professional POS</span>
+                <span class="block text-sm text-gray-400 group-hover:text-blue-100 mt-2">Professional POS</span>
             </button>
 
-            <button onclick="setLanguage('sq')" class="flex-1 group relative p-6 bg-slate-800 rounded-2xl hover:bg-red-600 transition-all duration-300 border border-slate-700 hover:border-red-500 text-center">
+            <button onclick="setLanguage('sq')" class="flex-1 group relative p-6 bg-slate-800/50 backdrop-blur-md rounded-2xl hover:bg-red-600/90 transition-all duration-300 border border-slate-700/50 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 text-center hover:-translate-y-1">
                 <span class="text-3xl mb-2 block">🇦🇱</span>
                 <span class="text-xl font-bold text-white">Shqip</span>
-                <span class="block text-sm text-gray-400 group-hover:text-red-200 mt-2">POS Profesional</span>
+                <span class="block text-sm text-gray-400 group-hover:text-red-100 mt-2">POS Profesional</span>
             </button>
         </div>
     </div>
 
     <!-- Info/Privacy/Contact Modal -->
-    <div id="info-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 modal-overlay hidden-modal backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col">
+    <div id="info-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 modal-overlay hidden-modal backdrop-blur-sm z-[100]">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col animate-pop">
             <div class="p-6 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10">
                 <h2 id="modal-title" class="text-2xl font-bold text-slate-900 dark:text-white">Info</h2>
                 <button onclick="closeInfoModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -218,7 +231,7 @@
                 <!-- Content injected via JS -->
             </div>
             <div class="p-6 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 rounded-b-2xl">
-                <button onclick="closeInfoModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
+                <button onclick="closeInfoModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-500/20">
                     Close / Mbyll
                 </button>
             </div>
@@ -226,32 +239,33 @@
     </div>
 
     <!-- Navigation -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-transparent">
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 bg-transparent">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 
                 <!-- 3D Logo Container -->
-                <div id="logo-container" class="flex items-center gap-3 cursor-pointer perspective-container select-none">
-                    <div id="logo-wrapper" class="relative w-12 h-12 transition-transform duration-100 ease-out preserve-3d">
+                <div id="logo-container" class="flex items-center gap-3 cursor-pointer perspective-container select-none group">
+                    <div id="logo-wrapper" class="relative w-10 h-10 transition-transform duration-100 ease-out preserve-3d group-hover:scale-110 duration-300">
                         <img 
                             src="https://ik.imagekit.io/bufi/icon%20LIKApos/icon.png?updatedAt=1763904694719" 
                             alt="LIKApos Logo" 
                             class="w-full h-full object-contain drop-shadow-xl"
                         >
                     </div>
-                    <!-- LOGO TEXT MODIFIED: Removed Blue, Added Animation Class -->
-                    <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-                        LIKA<span class="logo-pos-anim">pos</span>
+                    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
+                        LIKA<span class="logo-pos-anim text-blue-600 dark:text-blue-500">pos</span>
                     </span>
                 </div>
 
                 <!-- Desktop Nav -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" data-i18n="nav_features">Features</a>
-                    <a href="#downloads" class="text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" data-i18n="nav_download">Download</a>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-i18n="nav_features">Features</a>
+                    <a href="#downloads" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-i18n="nav_download">Download</a>
                     
+                    <div class="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2"></div>
+
                     <!-- Language Switcher (Mini) -->
-                    <button onclick="toggleLanguage()" class="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-500 px-2 py-1 rounded border border-transparent hover:border-gray-200 dark:hover:border-slate-700">
+                    <button onclick="toggleLanguage()" class="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-500 px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
                         <i data-lucide="languages" class="w-4 h-4"></i>
                         <span id="current-lang-display">EN</span>
                     </button>
@@ -259,16 +273,16 @@
                     <!-- Theme Toggle Button -->
                     <button 
                         id="theme-toggle"
-                        class="p-2 rounded-full transition-colors bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700"
+                        class="p-2 rounded-full transition-colors bg-gray-100 dark:bg-slate-800 text-slate-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 ring-1 ring-gray-200 dark:ring-slate-700"
                         aria-label="Toggle Dark Mode"
                     >
-                        <i data-lucide="moon" class="block dark:hidden w-5 h-5"></i>
-                        <i data-lucide="sun" class="hidden dark:block w-5 h-5"></i>
+                        <i data-lucide="moon" class="block dark:hidden w-4 h-4"></i>
+                        <i data-lucide="sun" class="hidden dark:block w-4 h-4"></i>
                     </button>
                     
                     <a 
                         href="#downloads"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5 active:translate-y-0"
                         data-i18n="nav_get_started"
                     >
                         Get Started
@@ -293,143 +307,162 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 overflow-hidden">
+    <section class="relative pt-36 pb-20 overflow-hidden">
+        <!-- Million Dollar Aesthetics: Ambient Background Glows -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 blur-[100px] dark:bg-blue-600/10 animate-blob"></div>
+            <div class="absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[100px] dark:bg-indigo-600/10 animate-blob animation-delay-2000"></div>
+        </div>
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold mb-6">
-                <i data-lucide="zap" class="w-4 h-4"></i>
+            
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-8 backdrop-blur-sm shadow-sm">
+                <span class="flex h-2 w-2 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
                 <span data-i18n="hero_version">Version 3.1 Released</span>
             </div>
-            
-            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white transition-colors">
+
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 text-slate-900 dark:text-white transition-colors">
                 <span data-i18n="hero_title_1">The Professional</span> <br />
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600" data-i18n="hero_title_highlight">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 dark:from-blue-400 dark:via-indigo-400 dark:to-blue-400 animate-gradient-x" data-i18n="hero_title_highlight">
                     Free POS Solution
                 </span>
             </h1>
             
-            <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-gray-600 dark:text-gray-400 transition-colors">
+            <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-gray-600 dark:text-slate-400 transition-colors leading-relaxed">
                 <span data-i18n="hero_desc">Manage inventory, track customers, and process sales.</span> <br/>
-                <span class="font-semibold text-blue-500" data-i18n="hero_desc_bold">100% Free. No Sign-in. No Data Collection.</span>
+                <span class="font-semibold text-slate-900 dark:text-slate-200" data-i18n="hero_desc_bold">100% Free. No Sign-in. No Data Collection.</span>
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                <a href="https://likapos.pages.dev" target="_blank" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-xl transition-all hover:scale-105">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+                <a href="https://likapos.pages.dev" target="_blank" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl shadow-blue-600/20 transition-all hover:-translate-y-1 hover:shadow-blue-600/30">
                     <i data-lucide="globe" class="w-5 h-5"></i>
                     <span data-i18n="btn_webapp">Launch Web App</span>
                 </a>
-                <a href="#downloads" class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-lg font-bold border-2 transition-all hover:scale-105 border-gray-200 dark:border-slate-700 text-slate-800 dark:text-white hover:border-gray-400 dark:hover:border-slate-500">
+                <a href="#downloads" class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-full text-lg font-bold border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white hover:border-gray-300 dark:hover:border-slate-600 transition-all hover:-translate-y-1 shadow-lg shadow-gray-200/50 dark:shadow-none">
                     <i data-lucide="download" class="w-5 h-5"></i>
                     <span data-i18n="btn_offline">Download Offline</span>
                 </a>
             </div>
 
             <!-- Mockup / Visual (With Slider & Tilt) -->
+            <!-- ADDED: shadow-blue-500/20 for that premium colored glow -->
             <div class="mockup-perspective max-w-5xl mx-auto px-4 sm:px-0 pb-12">
-                <div id="mockup-wrapper" class="mockup-tilt relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer" onclick="nextSlide()">
+                <div id="mockup-wrapper" class="mockup-tilt relative rounded-xl shadow-2xl shadow-blue-900/20 dark:shadow-black/50 overflow-hidden border border-gray-200 dark:border-slate-700/50 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer ring-1 ring-white/50 dark:ring-white/5" onclick="nextSlide()">
                    
-                   <!-- Mockup Window Header -->
-                   <div class="h-8 w-full border-b flex items-center px-4 gap-2 bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors z-20 relative">
-                     <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                     <!-- CHANGED TEXT HERE -->
-                     <div class="ml-4 text-xs text-gray-400 font-mono select-none">LIKApos - FREE</div>
+                   <!-- Mockup Window Header (Glassmorphism) -->
+                   <div class="h-10 w-full border-b flex items-center px-4 gap-2 bg-gray-50/90 dark:bg-slate-900/90 backdrop-blur-md border-gray-200 dark:border-slate-700/50 transition-colors z-20 relative">
+                     <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-400/80 border border-red-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400/80 border border-yellow-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400/80 border border-green-500/50"></div>
+                     </div>
+                     
+                     <!-- Address Bar Fake -->
+                     <div class="flex-1 mx-4 bg-white dark:bg-slate-800 rounded-md h-6 border border-gray-200 dark:border-slate-700 flex items-center justify-center">
+                        <div class="flex items-center gap-1.5 opacity-50">
+                            <i data-lucide="lock" class="w-3 h-3 text-green-500"></i>
+                            <span class="text-[10px] font-mono text-gray-500 dark:text-gray-400">likapos.pages.dev</span>
+                        </div>
+                     </div>
                    </div>
                    
                    <!-- CLICK ME Badge -->
                    <div class="click-badge animate-bounce-gentle">
-                       <span class="bg-black/75 text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm shadow-xl flex items-center gap-1">
-                           <i data-lucide="mouse-pointer-2" class="w-3 h-3"></i> CLICK ME
+                       <span class="bg-blue-600/90 text-white text-xs font-bold px-4 py-2 rounded-full border border-white/20 backdrop-blur-md shadow-xl flex items-center gap-2">
+                           <i data-lucide="mouse-pointer-2" class="w-3 h-3"></i> CLICK TO SLIDE
                        </span>
                    </div>
 
-                   <!-- Slider Body - Aspect Ratio Changed to aspect-video (16/9) for perfect fit -->
-                   <div class="relative w-full aspect-video bg-slate-900 overflow-hidden">
+                   <!-- Slider Body -->
+                   <div class="relative w-full aspect-[1920/945] bg-slate-900 overflow-hidden group-hover:shadow-[inset_0_0_100px_rgba(0,0,0,0.2)] transition-all">
                        <!-- Images Container -->
                        <div id="slider-container" class="w-full h-full relative">
                            <!-- Images will be injected by JS -->
                        </div>
                        
-                       <!-- Gloss/Sheen Effect -->
-                       <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20"></div>
+                       <!-- Premium Gloss/Sheen Effect -->
+                       <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-20 mix-blend-overlay"></div>
                    </div>
                 </div>
+                
+                <!-- Reflection/Shadow underneath mockup -->
+                <div class="mt-8 mx-auto w-[90%] h-4 bg-black/20 dark:bg-black/50 blur-xl rounded-[100%] opacity-40"></div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-20 bg-white dark:bg-slate-800 transition-colors">
+    <section id="features" class="py-24 bg-white dark:bg-[#0B1120] transition-colors relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white" data-i18n="features_title">Everything you need to run your store</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-400" data-i18n="features_subtitle">Powerful features packed into a simple, intuitive interface.</p>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-i18n="features_subtitle">Powerful features packed into a simple, intuitive interface.</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Feature 1 -->
-                <div class="p-6 rounded-2xl border transition-all hover:shadow-xl hover:-translate-y-1 bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-700">
-                    <div class="mb-4 text-blue-500"><i data-lucide="monitor" class="w-8 h-8"></i></div>
-                    <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white" data-i18n="feat_1_title">Cross-Platform</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="feat_1_desc">Use LIKApos on any browser, or download the dedicated app for Windows Desktop, Tablet, or Mobile views.</p>
+                <div class="p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 bg-gray-50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700/50 group">
+                    <div class="mb-6 inline-flex p-3 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"><i data-lucide="monitor" class="w-6 h-6"></i></div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white" data-i18n="feat_1_title">Cross-Platform</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="feat_1_desc">Use LIKApos on any browser, or download the dedicated app for Windows Desktop, Tablet, or Mobile views.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="p-6 rounded-2xl border transition-all hover:shadow-xl hover:-translate-y-1 bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-700">
-                    <div class="mb-4 text-purple-500"><i data-lucide="wifi-off" class="w-8 h-8"></i></div>
-                    <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white" data-i18n="feat_2_title">100% Offline Capable</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="feat_2_desc">Download the Windows app and run your business without an internet connection. No downtime, ever.</p>
+                <div class="p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2 bg-gray-50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700/50 group">
+                    <div class="mb-6 inline-flex p-3 rounded-2xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"><i data-lucide="wifi-off" class="w-6 h-6"></i></div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white" data-i18n="feat_2_title">100% Offline Capable</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="feat_2_desc">Download the Windows app and run your business without an internet connection. No downtime, ever.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="p-6 rounded-2xl border transition-all hover:shadow-xl hover:-translate-y-1 bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-700">
-                    <div class="mb-4 text-green-500"><i data-lucide="file-text" class="w-8 h-8"></i></div>
-                    <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white" data-i18n="feat_3_title">Inventory Import/Export</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="feat_3_desc">Easily manage stock using simple .txt files. Just type 'space-hyphen-space' to organize data.</p>
+                <div class="p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/10 hover:-translate-y-2 bg-gray-50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700/50 group">
+                    <div class="mb-6 inline-flex p-3 rounded-2xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><i data-lucide="file-text" class="w-6 h-6"></i></div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white" data-i18n="feat_3_title">Inventory Import/Export</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="feat_3_desc">Easily manage stock using simple .txt files. Just type 'space-hyphen-space' to organize data.</p>
                 </div>
 
                 <!-- Feature 4 -->
-                <div class="p-6 rounded-2xl border transition-all hover:shadow-xl hover:-translate-y-1 bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-700">
-                    <div class="mb-4 text-orange-500"><i data-lucide="bar-chart-3" class="w-8 h-8"></i></div>
-                    <h3 class="text-xl font-bold mb-2 text-slate-900 dark:text-white" data-i18n="feat_4_title">Real-Time Analytics</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="feat_4_desc">Track Revenue, Total Orders, Average Order Value, and detailed transaction logs instantly.</p>
+                <div class="p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 bg-gray-50 dark:bg-slate-800/50 border-gray-100 dark:border-slate-700/50 group">
+                    <div class="mb-6 inline-flex p-3 rounded-2xl bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform"><i data-lucide="bar-chart-3" class="w-6 h-6"></i></div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white" data-i18n="feat_4_title">Real-Time Analytics</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed" data-i18n="feat_4_desc">Track Revenue, Total Orders, Average Order Value, and detailed transaction logs instantly.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Detailed Capabilities -->
-    <section class="py-20 bg-gray-50 dark:bg-slate-900 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+    <section class="py-24 bg-gray-50 dark:bg-slate-900/50 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32">
             
             <!-- Detail Block 1: POS TERMINAL -->
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="flex-1 space-y-6">
-                    <div class="inline-flex items-center gap-2 text-blue-500 font-bold uppercase tracking-wider text-sm">
-                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> <span data-i18n="det_pos_label">POS Terminal</span>
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="flex-1 space-y-8">
+                    <div class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider text-xs">
+                        <span class="w-8 h-[2px] bg-blue-600 dark:bg-blue-400"></span>
+                        <span data-i18n="det_pos_label">POS Terminal</span>
                     </div>
-                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white" data-i18n="det_pos_title">Fast Checkout. Happy Customers.</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_pos_1">Professional Photo Grid Layout (Small, Medium, Large, List)</span>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight" data-i18n="det_pos_title">Fast Checkout. <br>Happy Customers.</h3>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4 group">
+                            <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_pos_1">Professional Photo Grid Layout (Small, Medium, Large, List)</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_pos_2">Instant Search via Text or Barcode Scanner</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_pos_2">Instant Search via Text or Barcode Scanner</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_pos_3">Smart Cart with Tax Calculation & Customer association</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_pos_4">Touch-friendly Payment Gateway Keypad with Change Due display</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_pos_3">Smart Cart with Tax Calculation & Customer association</span>
                         </li>
                     </ul>
                 </div>
                 <!-- IMAGE UPDATED (POS) -->
-                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/2.jpg?updatedAt=1763932046251" 
                         alt="POS Terminal Interface" 
@@ -439,29 +472,30 @@
             </div>
 
             <!-- Detail Block 2: INVENTORY -->
-            <div class="flex flex-col md:flex-row-reverse items-center gap-12">
-                <div class="flex-1 space-y-6">
-                    <div class="inline-flex items-center gap-2 text-purple-500 font-bold uppercase tracking-wider text-sm">
-                        <i data-lucide="package" class="w-4 h-4"></i> <span data-i18n="det_inv_label">Inventory & CRM</span>
+            <div class="flex flex-col md:flex-row-reverse items-center gap-16">
+                <div class="flex-1 space-y-8">
+                    <div class="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider text-xs">
+                        <span class="w-8 h-[2px] bg-purple-600 dark:bg-purple-400"></span>
+                        <span data-i18n="det_inv_label">Inventory & CRM</span>
                     </div>
-                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white" data-i18n="det_inv_title">Total Control Over Products</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_inv_1">Add products quickly via Photo Link Copy</span>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight" data-i18n="det_inv_title">Total Control Over Products</h3>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_inv_1">Add products quickly via Photo Link Copy</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_inv_2">Real-time Stock View, Categories, Cost vs Sell Price</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_inv_2">Real-time Stock View, Categories, Cost vs Sell Price</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_inv_3">Customer Tracking: Name & Phone Number database</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_inv_3">Customer Tracking: Name & Phone Number database</span>
                         </li>
                     </ul>
                 </div>
                 <!-- IMAGE UPDATED (INVENTORY) -->
-                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043" 
                         alt="Inventory Management Interface" 
@@ -471,33 +505,34 @@
             </div>
 
             <!-- Detail Block 3: SYSTEM DATA -->
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="flex-1 space-y-6">
-                    <div class="inline-flex items-center gap-2 text-red-500 font-bold uppercase tracking-wider text-sm">
-                        <i data-lucide="settings" class="w-4 h-4"></i> <span data-i18n="det_sys_label">System & Data</span>
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="flex-1 space-y-8">
+                     <div class="inline-flex items-center gap-2 text-red-600 dark:text-red-400 font-bold uppercase tracking-wider text-xs">
+                        <span class="w-8 h-[2px] bg-red-600 dark:bg-red-400"></span>
+                        <span data-i18n="det_sys_label">System & Data</span>
                     </div>
-                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white" data-i18n="det_sys_title">Customizable & Secure</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_sys_1">Multi-Language: English & Albanian Support</span>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight" data-i18n="det_sys_title">Customizable & Secure</h3>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_sys_1">Multi-Language: English & Albanian Support</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_sys_2">Tax Settings: Exclusive/Inclusive rates & Custom Currency</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_sys_2">Tax Settings: Exclusive/Inclusive rates & Custom Currency</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_sys_3">Danger Zone: Backup, Import, Factory Reset</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_sys_3">Danger Zone: Backup, Import, Factory Reset</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_sys_4">Privacy First: No data is ever sent to a cloud server.</span>
+                         <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_sys_4">Privacy First: No data is ever sent to a cloud server.</span>
                         </li>
                     </ul>
                 </div>
                 <!-- IMAGE UPDATED (SYSTEM DATA) -->
-                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723" 
                         alt="System Settings Interface" 
@@ -507,28 +542,29 @@
             </div>
 
             <!-- Detail Block 4: DARK MODE (NEW) -->
-            <div class="flex flex-col md:flex-row-reverse items-center gap-12">
-                <div class="flex-1 space-y-6">
-                    <div class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">
-                        <i data-lucide="moon" class="w-4 h-4"></i> <span data-i18n="det_dark_label">Appearance</span>
+            <div class="flex flex-col md:flex-row-reverse items-center gap-16">
+                <div class="flex-1 space-y-8">
+                     <div class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-xs">
+                        <span class="w-8 h-[2px] bg-slate-600 dark:bg-slate-400"></span>
+                        <span data-i18n="det_dark_label">Appearance</span>
                     </div>
-                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white" data-i18n="det_dark_title">Stunning Dark Mode</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_1">Reduces eye strain during long shifts.</span>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight" data-i18n="det_dark_title">Stunning Dark Mode</h3>
+                    <ul class="space-y-5">
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-600 dark:text-slate-300 group-hover:bg-slate-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_dark_1">Reduces eye strain during long shifts.</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_2">Sleek, modern contrast for better visibility.</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-600 dark:text-slate-300 group-hover:bg-slate-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_dark_2">Sleek, modern contrast for better visibility.</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
-                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_3">Toggle instantly with a single click.</span>
+                        <li class="flex items-start gap-4 group">
+                             <div class="mt-1 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-600 dark:text-slate-300 group-hover:bg-slate-600 group-hover:text-white transition-colors"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+                            <span class="text-lg text-gray-600 dark:text-gray-300" data-i18n="det_dark_3">Toggle instantly with a single click.</span>
                         </li>
                     </ul>
                 </div>
-                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200 dark:shadow-black/50 border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02] bg-white dark:bg-slate-800">
                     <img 
                         src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161" 
                         alt="Dark Mode Interface" 
@@ -541,54 +577,54 @@
     </section>
 
     <!-- Downloads Section -->
-    <section id="downloads" class="py-24 relative overflow-hidden bg-blue-600 dark:bg-slate-800 transition-colors">
+    <section id="downloads" class="py-24 relative overflow-hidden bg-blue-600 dark:bg-[#0f172a] transition-colors">
         <!-- Background decoration -->
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-            <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white blur-3xl"></div>
-            <div class="absolute top-1/2 right-0 w-64 h-64 rounded-full bg-black blur-3xl"></div>
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+            <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white blur-[100px]"></div>
+            <div class="absolute top-1/2 right-0 w-80 h-80 rounded-full bg-blue-400 blur-[100px] dark:bg-indigo-500"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <h2 class="text-4xl md:text-5xl font-bold text-white mb-6" data-i18n="download_title">Get Started for Free</h2>
-            <p class="text-blue-100 text-xl max-w-2xl mx-auto mb-12" data-i18n="download_desc">
+            <p class="text-blue-100 text-xl max-w-2xl mx-auto mb-16" data-i18n="download_desc">
                 Choose how you want to use LIKApos. No hidden fees, no credit cards required.
             </p>
 
-            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 
                 <!-- Card 1: Web App -->
-                <div class="p-8 rounded-2xl shadow-xl transition-transform hover:-translate-y-2 bg-white dark:bg-slate-900">
-                    <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-6 mx-auto">
-                        <i data-lucide="globe" class="w-7 h-7 text-blue-600"></i>
+                <div class="p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
+                        <i data-lucide="globe" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white" data-i18n="card_web_title">Web App</h3>
-                    <p class="mb-6 text-gray-500 dark:text-gray-400" data-i18n="card_web_desc">Access instantly from any browser. Ideal for testing and quick access.</p>
-                    <a href="https://likapos.pages.dev" target="_blank" class="block w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors" data-i18n="btn_webapp_launch">
+                    <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white" data-i18n="card_web_title">Web App</h3>
+                    <p class="mb-8 text-gray-500 dark:text-gray-400 min-h-[50px]" data-i18n="card_web_desc">Access instantly from any browser. Ideal for testing and quick access.</p>
+                    <a href="https://likapos.pages.dev" target="_blank" class="block w-full py-3.5 rounded-xl bg-gray-50 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-gray-900 dark:text-white font-bold transition-all" data-i18n="btn_webapp_launch">
                         Launch Online
                     </a>
                 </div>
 
-                <!-- Card 2: Setup -->
-                <div class="p-8 rounded-2xl shadow-xl transition-transform hover:-translate-y-2 border-2 border-blue-400 relative bg-white dark:bg-slate-900">
-                    <div class="absolute top-0 right-0 bg-blue-400 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">RECOMMENDED</div>
-                    <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-6 mx-auto">
-                        <i data-lucide="monitor" class="w-7 h-7 text-blue-600"></i>
+                <!-- Card 2: Setup (Featured) -->
+                <div class="p-8 rounded-3xl shadow-2xl hover:shadow-blue-900/50 hover:-translate-y-2 transition-all duration-300 border-2 border-blue-400 dark:border-blue-500 relative bg-white dark:bg-slate-800 scale-105 z-10">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">RECOMMENDED</div>
+                    <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
+                        <i data-lucide="monitor" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white" data-i18n="card_setup_title">Windows Setup</h3>
-                    <p class="mb-6 text-gray-500 dark:text-gray-400" data-i18n="card_setup_desc">Full offline installation. Best performance for daily store usage.</p>
-                    <a href="https://www.dropbox.com/scl/fi/7q1ucgcg14cz252708y8p/LIKApos-Setup.exe?rlkey=b318w4cg96mm58mfdne83r101&st=nublqwrm&dl=1" class="block w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors" data-i18n="btn_download_setup">
+                    <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white" data-i18n="card_setup_title">Windows Setup</h3>
+                    <p class="mb-8 text-gray-500 dark:text-gray-400 min-h-[50px]" data-i18n="card_setup_desc">Full offline installation. Best performance for daily store usage.</p>
+                    <a href="https://www.dropbox.com/scl/fi/7q1ucgcg14cz252708y8p/LIKApos-Setup.exe?rlkey=b318w4cg96mm58mfdne83r101&st=nublqwrm&dl=1" class="block w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-lg shadow-blue-500/30" data-i18n="btn_download_setup">
                         Download Setup
                     </a>
                 </div>
 
                 <!-- Card 3: Portable -->
-                <div class="p-8 rounded-2xl shadow-xl transition-transform hover:-translate-y-2 bg-white dark:bg-slate-900">
-                    <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-6 mx-auto">
-                        <i data-lucide="package" class="w-7 h-7 text-blue-600"></i>
+                <div class="p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-6 mx-auto text-blue-600 dark:text-blue-400">
+                        <i data-lucide="package" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white" data-i18n="card_portable_title">Windows Portable</h3>
-                    <p class="mb-6 text-gray-500 dark:text-gray-400" data-i18n="card_portable_desc">No installation required. Ideal for USB drives to keep data portable, or run directly on your system.</p>
-                    <a href="https://www.dropbox.com/scl/fi/2fld845z4yodwxzj05or3/LIKApos.exe?rlkey=egu6lgvy9gq0tbjh50s94756x&st=ghw2zz4b&dl=1" class="block w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors" data-i18n="btn_download_portable">
+                    <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white" data-i18n="card_portable_title">Windows Portable</h3>
+                    <p class="mb-8 text-gray-500 dark:text-gray-400 min-h-[50px]" data-i18n="card_portable_desc">No installation required. Ideal for USB drives to keep data portable, or run directly on your system.</p>
+                    <a href="https://www.dropbox.com/scl/fi/2fld845z4yodwxzj05or3/LIKApos.exe?rlkey=egu6lgvy9gq0tbjh50s94756x&st=ghw2zz4b&dl=1" class="block w-full py-3.5 rounded-xl bg-gray-50 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-gray-900 dark:text-white font-bold transition-all" data-i18n="btn_download_portable">
                         Download Portable
                     </a>
                 </div>
@@ -598,27 +634,27 @@
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 border-t bg-gray-50 dark:bg-slate-950 border-gray-200 dark:border-slate-800 transition-colors">
+    <footer class="py-12 border-t bg-gray-50 dark:bg-[#0B1120] border-gray-200 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                <div class="flex items-center gap-2 mb-4 md:mb-0">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+                <div class="flex items-center gap-2">
                     <img 
                         src="https://ik.imagekit.io/bufi/icon%20LIKApos/icon.png?updatedAt=1763904694719" 
                         alt="Logo" 
-                        class="w-8 h-8"
+                        class="w-10 h-10 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                     />
                     <span class="text-xl font-bold text-slate-900 dark:text-white">
                         LIKA<span class="text-blue-600">pos</span>
                     </span>
                 </div>
-                <div class="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
-                    <button onclick="openInfoModal('privacy')" class="hover:text-blue-500" data-i18n="foot_privacy">Privacy Policy</button>
-                    <button onclick="openInfoModal('privacy')" class="hover:text-blue-500" data-i18n="foot_terms">Terms of Service</button>
-                    <button onclick="openInfoModal('contact')" class="hover:text-blue-500" data-i18n="foot_contact">Contact Support</button>
+                <div class="flex gap-8 text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <button onclick="openInfoModal('privacy')" class="hover:text-blue-500 transition-colors" data-i18n="foot_privacy">Privacy Policy</button>
+                    <button onclick="openInfoModal('privacy')" class="hover:text-blue-500 transition-colors" data-i18n="foot_terms">Terms of Service</button>
+                    <button onclick="openInfoModal('contact')" class="hover:text-blue-500 transition-colors" data-i18n="foot_contact">Contact Support</button>
                 </div>
             </div>
-            <div class="text-center text-sm text-gray-400 dark:text-gray-600">
-                <p>&copy; <span id="year"></span> LIKApos. MADE WITH <span class="text-red-500">❤️</span> <a href="https://likaapps.com" target="_blank" class="lika-link font-bold">LIKA</a>.</p>
+            <div class="text-center text-sm text-gray-400 dark:text-gray-600 border-t border-gray-200 dark:border-slate-800 pt-8">
+                <p>&copy; <span id="year"></span> LIKApos. MADE WITH <span class="text-red-500 inline-block animate-pulse">❤️</span> <a href="https://likaapps.com" target="_blank" class="lika-link font-bold text-slate-600 dark:text-slate-400">LIKA</a>.</p>
             </div>
         </div>
     </footer>
@@ -629,24 +665,21 @@
         const sliderImages = [
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/1.jpg?updatedAt=1763932046790",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/2.jpg?updatedAt=1763932046251",
-            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161", // ADDED NEW IMAGE
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/6.jpg?updatedAt=1763932045136"
         ];
 
         let currentSlide = 0;
-        const slideInterval = 4000; // 4 seconds
+        const slideInterval = 5000; 
         let sliderIntervalId;
+        let isAnimating = false; // Flag to prevent double clicks and stop tilt
 
         function initSlider() {
             const container = document.getElementById('slider-container');
             if (!container) return;
-
-            // Clear existing if any (re-init safety)
             container.innerHTML = '';
-
-            // Create Image Elements
             sliderImages.forEach((src, index) => {
                 const img = document.createElement('img');
                 img.src = src;
@@ -654,7 +687,6 @@
                 img.alt = `LIKApos Screenshot ${index + 1}`;
                 container.appendChild(img);
             });
-
             startAutoSlide();
         }
 
@@ -663,49 +695,83 @@
             sliderIntervalId = setInterval(nextSlide, slideInterval);
         }
 
-        // Exposed Next Slide Function (Called by Click)
+        // --- NEW PROFESSIONAL 3D SWAP ANIMATION ---
         function nextSlide() {
+            if (isAnimating) return;
+            
             const images = document.querySelectorAll('.slide-image');
             if(images.length === 0) return;
-
-            images[currentSlide].classList.remove('active');
             
-            currentSlide = (currentSlide + 1) % images.length;
-            
-            images[currentSlide].classList.add('active');
+            const wrapper = document.getElementById('mockup-wrapper');
+            if (!wrapper) return;
 
-            // Reset timer on manual interaction
-            startAutoSlide();
+            isAnimating = true;
+            clearInterval(sliderIntervalId); // Stop auto timer while animating
+
+            // PHASE 1: ROTATE OUT (Recede & Turn 90deg)
+            // Using inline styles to override specific Tilt transforms
+            wrapper.style.transition = 'transform 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.5s ease-in, filter 0.5s ease-in';
+            // Scale down slightly to give depth, rotate Y 90deg to hide face
+            wrapper.style.transform = 'perspective(2500px) rotateY(90deg) scale(0.85)';
+            wrapper.style.opacity = '0.7';
+            wrapper.style.filter = 'blur(8px)'; // Speed motion blur
+
+            // PHASE 2: SWAP CONTENT (Hidden)
+            setTimeout(() => {
+                // Swap active class
+                images[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % images.length;
+                images[currentSlide].classList.add('active');
+
+                // Instant jump to opposite angle (-90deg) so it rotates IN from the other side
+                wrapper.style.transition = 'none';
+                wrapper.style.transform = 'perspective(2500px) rotateY(-90deg) scale(0.85)';
+                
+                // Force Reflow
+                void wrapper.offsetWidth;
+
+                // PHASE 3: ROTATE IN (Pop back to 0)
+                // Elastic/Bounce effect for "Professional" feel
+                setTimeout(() => {
+                    wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease-out, filter 0.6s ease-out';
+                    wrapper.style.transform = 'perspective(2500px) rotateY(0deg) scale(1)';
+                    wrapper.style.opacity = '1';
+                    wrapper.style.filter = 'blur(0px)';
+
+                    // Cleanup
+                    setTimeout(() => {
+                        isAnimating = false;
+                        wrapper.style.transition = ''; // clear inline transition to let CSS take over
+                        wrapper.style.transform = ''; // clear inline transform
+                        startAutoSlide(); // Restart timer
+                    }, 600);
+                }, 50);
+
+            }, 500); // Wait for Phase 1 to finish
         }
         
-        // Call init on load
         document.addEventListener('DOMContentLoaded', initSlider);
-
 
         // --- MOCKUP TILT LOGIC ---
         const mockupWrapper = document.getElementById('mockup-wrapper');
-        
         if(mockupWrapper) {
             mockupWrapper.addEventListener('mousemove', (e) => {
+                if (isAnimating) return; // Don't tilt while rotating
+
                 const rect = mockupWrapper.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
-                
-                // Reduced rotation angles for a subtler "Professional" feel
                 const rotateX = ((y - centerY) / centerY) * -5; 
                 const rotateY = ((x - centerX) / centerX) * 5;
-
-                mockupWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                mockupWrapper.style.transform = `perspective(2500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
-
             mockupWrapper.addEventListener('mouseleave', () => {
-                mockupWrapper.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                if (isAnimating) return;
+                mockupWrapper.style.transform = `perspective(2500px) rotateX(0deg) rotateY(0deg)`;
             });
         }
-
 
         // --- CONTENT DATA (Long Texts) ---
         const contentData = {
@@ -714,84 +780,25 @@
                 privacy_content: `
                     <div class="space-y-6">
                         <div class="text-sm text-gray-500 border-b pb-2 mb-4">Effective Date: 24.11.2025</div>
-
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">1. Privacy Policy</h3>
-                        
-                        <p><strong>1. Data Sovereignty & Local Storage</strong><br>
-                        LIKApos operates on a strict "Local-First" architecture. We do not own, store, transmit, process, or have access to your data. All databases, inventory records, customer details, and transaction logs reside solely on your local device (Browser Cache for the Web App; Local File System for the Desktop App).</p>
-
-                        <p><strong>2. No Tracking or Analytics</strong><br>
-                        We respect your privacy. We do not utilize cookies, third-party trackers, or analytics scripts to monitor user behavior or harvest usage data. Your business operations remain completely private and offline (unless you choose to use the Web App, which relies on your browser's local environment).</p>
-
-                        <p><strong>3. User Responsibility for Data Security</strong><br>
-                        Since LIKApos does not store your data on cloud servers, we cannot recover lost passwords or data. You are solely responsible for:
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>Regularly backing up your database via the "Danger Zone" settings.</li>
-                            <li>Protecting your device from malware, theft, or unauthorized access.</li>
-                            <li>Ensuring your browser cache is not accidentally cleared if using the Web App.</li>
-                        </ul>
-                        </p>
-
-                        <p><strong>4. Changes to Policy</strong><br>
-                        We reserve the right to modify this privacy policy at any time. Continued use of the software constitutes acceptance of these changes.</p>
-
+                        <p><strong>1. Data Sovereignty & Local Storage</strong><br>LIKApos operates on a strict "Local-First" architecture. We do not own, store, transmit, process, or have access to your data. All databases, inventory records, customer details, and transaction logs reside solely on your local device.</p>
+                        <p><strong>2. No Tracking or Analytics</strong><br>We respect your privacy. We do not utilize cookies, third-party trackers, or analytics scripts to monitor user behavior or harvest usage data.</p>
+                        <p><strong>3. User Responsibility for Data Security</strong><br>Since LIKApos does not store your data on cloud servers, we cannot recover lost passwords or data. You are solely responsible for your backups.</p>
                         <hr class="border-gray-200 dark:border-gray-700 my-6">
-
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">2. Terms of Service</h3>
-
-                        <p><strong>1. Acceptance of Terms</strong><br>
-                        By downloading, accessing, or using LIKApos, you agree to be bound by these Terms of Service. If you do not agree, do not use the software.</p>
-
-                        <p><strong>2. License and Usage</strong><br>
-                        LIKApos is provided as free software. You are granted a revocable, non-exclusive license to use the software for personal or commercial business purposes. You may not claim ownership of the source code or resell the software under a different name without explicit permission.</p>
-
-                        <p><strong>3. "As Is" Disclaimer</strong><br>
-                        This software is provided "as is" and "as available," without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee that the software will be error-free or uninterrupted.</p>
-
-                        <p><strong>4. Limitation of Liability</strong><br>
-                        To the maximum extent permitted by applicable law, the developers of LIKApos shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use this software. This includes, but is not limited to:
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>Loss of data, profits, revenue, or business reputation.</li>
-                            <li>Errors in tax calculations or inventory management.</li>
-                            <li>Hardware damage or system failure.</li>
-                            <li>Fines or legal penalties incurred due to non-compliance with local fiscal laws.</li>
-                        </ul>
-                        </p>
-
-                        <p><strong>5. Legal Compliance</strong><br>
-                        You are solely responsible for ensuring that your use of LIKApos complies with all local, state, and international laws applicable to your business, including the laws of the Republic of Kosovo if applicable. It is your responsibility to verify that the generated invoices/receipts meet your country's fiscal requirements.</p>
-
-                        <p><strong>6. Governing Law</strong><br>
-                        These terms shall be governed by and construed in accordance with the laws of the Republic of Kosovo, without regard to its conflict of law provisions.</p>
+                        <p><strong>1. Acceptance of Terms</strong><br>By downloading, accessing, or using LIKApos, you agree to be bound by these Terms of Service.</p>
+                        <p><strong>2. License and Usage</strong><br>LIKApos is provided as free software for personal or commercial business purposes.</p>
+                        <p><strong>3. "As Is" Disclaimer</strong><br>This software is provided "as is" without warranty of any kind.</p>
+                        <p><strong>4. Limitation of Liability</strong><br>The developers shall not be liable for any direct or indirect damages resulting from the use of this software.</p>
                     </div>
                 `,
                 contact_title: "Contact Support",
                 contact_content: `
                     <div class="space-y-6">
                         <p class="text-gray-500">For inquiries regarding software bugs, installation issues, or feedback.</p>
-
                         <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg space-y-3">
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="mail" class="w-5 h-5 text-blue-500"></i>
-                                <a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i>
-                                <a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Service Level Agreement</h4>
-                            <ul class="list-disc pl-5 space-y-1 text-sm">
-                                <li><strong>Response Time:</strong> We aim to respond within 24–72 hours.</li>
-                                <li><strong>Scope:</strong> Technical support for software functionality only.</li>
-                            </ul>
-                        </div>
-
-                        <div class="border-l-4 border-yellow-500 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
-                            <h4 class="font-bold text-yellow-700 dark:text-yellow-500 text-sm mb-1">Important Exclusions</h4>
-                            <p class="text-xs text-yellow-800 dark:text-yellow-400">We DO NOT provide fiscal/tax advice, hardware repair, or data recovery services. You are responsible for your own backups.</p>
+                            <div class="flex items-center gap-3"><i data-lucide="mail" class="w-5 h-5 text-blue-500"></i><a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a></div>
+                            <div class="flex items-center gap-3"><i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i><a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a></div>
                         </div>
                     </div>
                 `
@@ -801,91 +808,30 @@
                 privacy_content: `
                     <div class="space-y-6">
                         <div class="text-sm text-gray-500 border-b pb-2 mb-4">Data e Efektit: 24.11.2025</div>
-
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">1. Politika e Privatësisë</h3>
-                        
-                        <p><strong>1. Sovraniteti i të Dhënave & Ruajtja Lokale</strong><br>
-                        LIKApos funksionon mbi një arkitekturë strikte "Lokale-Së Pari". Ne nuk zotërojmë, ruajmë, transmetojmë, përpunojmë ose kemi qasje në të dhënat tuaja. Të gjitha bazat e të dhënave, regjistrat e inventarit, detajet e klientëve dhe regjistrat e transaksioneve qëndrojnë vetëm në pajisjen tuaj lokale (në "Browser Cache" për Web App; në Sistemin e Skedarëve Lokal për Aplikacionin Desktop).</p>
-
-                        <p><strong>2. Pa Gjurmim ose Analitikë</strong><br>
-                        Ne respektojmë privatësinë tuaj. Ne nuk përdorim "cookies", gjurmues të palëve të treta ose skripte analitike për të monitoruar sjelljen e përdoruesit ose për të mbledhur të dhëna mbi përdorimin. Operacionet e biznesit tuaj mbeten plotësisht private.</p>
-
-                        <p><strong>3. Përgjegjësia e Përdoruesit për Sigurinë e të Dhënave</strong><br>
-                        Meqenëse LIKApos nuk i ruan të dhënat tuaja në serverë (cloud), ne nuk mund të rikuperojmë fjalëkalimet ose të dhënat e humbura. Ju jeni vetëm përgjegjës për:
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>Krijimin e rregullt të kopjeve rezervë (backup) të bazës së të dhënave përmes cilësimeve në "Danger Zone".</li>
-                            <li>Mbrojtjen e pajisjes tuaj nga viruset, vjedhjet ose qasjet e paautorizuara.</li>
-                            <li>Sigurimin që "cache" i shfletuesit tuaj të mos fshihet aksidentalisht nëse përdorni Web App.</li>
-                        </ul>
-                        </p>
-
-                        <p><strong>4. Ndryshimet në Politikë</strong><br>
-                        Ne rezervojmë të drejtën për të modifikuar këtë politikë të privatësisë në çdo kohë. Përdorimi i vazhdueshëm i softuerit përbën pranimin e këtyre ndryshimeve.</p>
-
+                        <p><strong>1. Sovraniteti i të Dhënave</strong><br>LIKApos funksionon me arkitekturë "Lokale-Së Pari". Të gjitha të dhënat qëndrojnë vetëm në pajisjen tuaj.</p>
+                        <p><strong>2. Pa Gjurmim</strong><br>Ne nuk përdorim cookies ose gjurmues për të mbledhur të dhëna.</p>
+                        <p><strong>3. Përgjegjësia e Sigurisë</strong><br>Ju jeni përgjegjës për të dhënat dhe backup-in tuaj.</p>
                         <hr class="border-gray-200 dark:border-gray-700 my-6">
-
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">2. Kushtet e Shërbimit</h3>
-
-                        <p><strong>1. Pranimi i Kushteve</strong><br>
-                        Duke shkarkuar, qasur ose përdorur LIKApos, ju pranoni të jeni të lidhur nga këto Kushte të Shërbimit. Nëse nuk jeni dakord, mos e përdorni softuerin.</p>
-
-                        <p><strong>2. Licenca dhe Përdorimi</strong><br>
-                        LIKApos ofrohet si softuer falas. Ju jepet një licencë e revokueshme, jo-ekskluzive për të përdorur softuerin për qëllime personale ose komerciale biznesi. Ju nuk mund të pretendoni pronësinë e kodit burimor ose ta rishisni softuerin nën një emër tjetër pa leje të qartë.</p>
-
-                        <p><strong>3. Mohimi i Garancisë "Siç Është"</strong><br>
-                        Ky softuer ofrohet "siç është" dhe "siç është i disponueshëm", pa asnjë lloj garancie, të shprehur ose të nënkuptuar, përfshirë por jo kufizuar në garancitë për tregtueshmëri, përshtatshmëri për një qëllim të caktuar dhe mosshkelje. Ne nuk garantojmë që softueri do të jetë pa gabime ose pa ndërprerje.</p>
-
-                        <p><strong>4. Kufizimi i Përgjegjësisë</strong><br>
-                        Në masën maksimale të lejuar nga ligji në fuqi, zhvilluesit e LIKApos nuk do të jenë përgjegjës për asnjë dëm të drejtpërdrejtë, të tërthortë, aksidental ose pasojë që rrjedh nga përdorimi ose pamundësia për të përdorur këtë softuer. Kjo përfshin, por nuk kufizohet në:
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li>Humbjen e të dhënave, fitimeve, të ardhurave ose reputacionit të biznesit.</li>
-                            <li>Gabime në llogaritjet e taksave ose menaxhimin e inventarit.</li>
-                            <li>Dëmtimin e harduerit ose dështimin e sistemit.</li>
-                            <li>Gjoba ose ndëshkime ligjore të shkaktuara nga mospërputhja me ligjet lokale fiskale.</li>
-                        </ul>
-                        </p>
-
-                        <p><strong>5. Pajtueshmëria Ligjore</strong><br>
-                        Ju jeni vetëm përgjegjës për të siguruar që përdorimi juaj i LIKApos të jetë në përputhje me të gjitha ligjet lokale, shtetërore dhe ndërkombëtare të zbatueshme për biznesin tuaj, përfshirë ligjet e Republikës së Kosovës nëse është e aplikueshme. Është përgjegjësia juaj të verifikoni që faturat/kuponat e gjeneruar plotësojnë kërkesat fiskale të vendit tuaj.</p>
-
-                        <p><strong>6. Ligji në Fuqi</strong><br>
-                        Këto kushte do të qeverisen dhe interpretohen në përputhje me ligjet e Republikës së Kosovës, pa marrë parasysh dispozitat e konfliktit të ligjeve.</p>
+                        <p><strong>1. Pranimi</strong><br>Duke përdorur LIKApos, ju pranoni këto kushte.</p>
+                        <p><strong>2. Përdorimi</strong><br>Softueri është falas për përdorim personal dhe komercial.</p>
+                        <p><strong>3. Mohimi i Garancisë</strong><br>Softueri ofrohet "siç është" pa garanci.</p>
                     </div>
                 `,
                 contact_title: "Kontakto Mbështetjen",
                 contact_content: `
                     <div class="space-y-6">
-                        <p class="text-gray-500">Për pyetje lidhur me gabimet e softuerit (bugs), problemet e instalimit ose sugjerime, ju lutemi na kontaktoni përmes:</p>
-
+                        <p class="text-gray-500">Për pyetje ose probleme teknike:</p>
                         <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg space-y-3">
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="mail" class="w-5 h-5 text-blue-500"></i>
-                                <a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i>
-                                <a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Marrëveshja e Nivelit të Shërbimit</h4>
-                            <ul class="list-disc pl-5 space-y-1 text-sm">
-                                <li><strong>Koha e Përgjigjes:</strong> Ne synojmë të përgjigjemi brenda 24–72 orëve.</li>
-                                <li><strong>Fusha e Mbështetjes:</strong> Ne ofrojmë rreptësisht mbështetje teknike vetëm për funksionalitetin e softuerit.</li>
-                            </ul>
-                        </div>
-
-                        <div class="border-l-4 border-yellow-500 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
-                            <h4 class="font-bold text-yellow-700 dark:text-yellow-500 text-sm mb-1">Përjashtime të Rëndësishme</h4>
-                            <p class="text-xs text-yellow-800 dark:text-yellow-400">Ne NUK ofrojmë këshilla fiskale, tatimore ose ligjore. Ne NUK ofrojmë riparim harduerik ose shërbime të rikuperimit të të dhënave. Ju jeni përgjegjës për "backups" tuaj.</p>
+                            <div class="flex items-center gap-3"><i data-lucide="mail" class="w-5 h-5 text-blue-500"></i><a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a></div>
+                            <div class="flex items-center gap-3"><i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i><a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a></div>
                         </div>
                     </div>
                 `
             }
         };
 
-        // --- TRANSLATION DATA (UI Elements) ---
         const translations = {
             en: {
                 nav_features: "Features",
@@ -913,19 +859,12 @@
                 det_pos_1: "Professional Photo Grid Layout (Small, Medium, Large, List)",
                 det_pos_2: "Instant Search via Text or Barcode Scanner",
                 det_pos_3: "Smart Cart with Tax Calculation & Customer association",
-                det_pos_4: "Touch-friendly Payment Gateway Keypad with Change Due display",
-                det_inv_label: "Inventory & CRM",
-                det_inv_title: "Total Control Over Products",
-                det_inv_1: "Add products quickly via Photo Link Copy",
-                det_inv_2: "Real-time Stock View, Categories, Cost vs Sell Price",
-                det_inv_3: "Customer Tracking: Name & Phone Number database",
                 det_sys_label: "System & Data",
                 det_sys_title: "Customizable & Secure",
                 det_sys_1: "Multi-Language: English & Albanian Support",
                 det_sys_2: "Tax Settings: Exclusive/Inclusive rates & Custom Currency",
                 det_sys_3: "Danger Zone: Backup, Import, Factory Reset",
                 det_sys_4: "Privacy First: No data is ever sent to a cloud server.",
-                // NEW TRANSLATIONS FOR DARK MODE
                 det_dark_label: "Appearance",
                 det_dark_title: "Stunning Dark Mode",
                 det_dark_1: "Reduces eye strain during long shifts.",
@@ -945,7 +884,11 @@
                 foot_privacy: "Privacy Policy",
                 foot_terms: "Terms of Service",
                 foot_contact: "Contact Support",
-                foot_rights: "Open Source Project."
+                det_inv_label: "Inventory & CRM",
+                det_inv_title: "Total Control Over Products",
+                det_inv_1: "Add products quickly via Photo Link Copy",
+                det_inv_2: "Real-time Stock View, Categories, Cost vs Sell Price",
+                det_inv_3: "Customer Tracking: Name & Phone Number database",
             },
             sq: {
                 nav_features: "Veçoritë",
@@ -973,19 +916,12 @@
                 det_pos_1: "Pamje Profesionale me Rrjetë Foto (Vogël, Mesme, Madhe, Listë)",
                 det_pos_2: "Kërkim i Menjëhershëm me Tekst ose Skaner Barkodi",
                 det_pos_3: "Shportë e Zgjuar me Llogaritje Takse & Asociim Klienti",
-                det_pos_4: "Tastierë Pagese me Prekje me shfaqje të kusurit",
-                det_inv_label: "Inventari & CRM",
-                det_inv_title: "Kontroll i Plotë mbi Produktet",
-                det_inv_1: "Shto produkte shpejt duke kopjuar linkun e fotos",
-                det_inv_2: "Pamje Stoku në Kohë Reale, Kategori, Kosto vs Çmim Shitje",
-                det_inv_3: "Gjurmim Klienti: Baza e të dhënave me Emër & Numër Telefoni",
                 det_sys_label: "Sistemi & Të Dhënat",
                 det_sys_title: "I Përshtatshëm & I Sigurt",
                 det_sys_1: "Shumë-Gjuhësh: Mbështetje Anglisht & Shqip",
                 det_sys_2: "Cilësimet e Taksave: Ekskluzive/Përfshirëse & Valutë e Personalizuar",
                 det_sys_3: "Zona e Rrezikut: Rezervim, Import, Rikthim në Gjendje Fabrike",
                 det_sys_4: "Privatësia e Para: Asnjë e dhënë nuk dërgohet në server.",
-                // NEW TRANSLATIONS FOR DARK MODE
                 det_dark_label: "Pamja",
                 det_dark_title: "Dark Mode i Mrekullueshëm",
                 det_dark_1: "Zvogëlon lodhjen e syve gjatë turneve të gjata.",
@@ -1000,56 +936,41 @@
                 card_setup_desc: "Instalim i plotë offline. Performanca më e mirë për përdorim ditor.",
                 btn_download_setup: "Shkarko Setup",
                 card_portable_title: "Windows Portable",
-                card_portable_desc: "Nuk kërkon instalim. Ideale për USB për të ruajtur të dhënat aty, ose ekzekuto direkt në sistem.",
+                card_portable_desc: "Nuk kërkon instalim. Ideale për USB.",
                 btn_download_portable: "Shkarko Portable",
                 foot_privacy: "Politika e Privatësisë",
                 foot_terms: "Kushtet e Shërbimit",
                 foot_contact: "Kontakto Mbështetjen",
-                foot_rights: "Projekt Open Source."
+                det_inv_label: "Inventari & CRM",
+                det_inv_title: "Kontroll i Plotë mbi Produktet",
+                det_inv_1: "Shto produkte shpejt duke kopjuar linkun e fotos",
+                det_inv_2: "Pamje Stoku në Kohë Reale, Kategori, Kosto vs Çmim Shitje",
+                det_inv_3: "Gjurmim Klienti: Baza e të dhënave me Emër & Numër Telefoni",
             }
         };
 
-        // --- APP LOGIC ---
-
         let currentLang = 'en';
 
-        // Set Language Function
         function setLanguage(lang) {
             currentLang = lang;
-            
-            // Update DOM Elements
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    el.innerText = translations[lang][key];
-                }
+                if (translations[lang][key]) el.innerText = translations[lang][key];
             });
-
-            // Update Language Display in Navbar
             document.getElementById('current-lang-display').innerText = lang.toUpperCase();
-
-            // Hide Language Modal
-            const modal = document.getElementById('language-modal');
-            modal.classList.add('hidden-modal');
-            
-            // Enable scrolling on body (reenable after modal close)
+            document.getElementById('language-modal').classList.add('hidden-modal');
             document.body.classList.remove('overflow-hidden');
         }
 
-        // Toggle Language (Navbar button)
         function toggleLanguage() {
-            const newLang = currentLang === 'en' ? 'sq' : 'en';
-            setLanguage(newLang);
+            setLanguage(currentLang === 'en' ? 'sq' : 'en');
         }
 
-        // --- INFO MODAL LOGIC ---
         function openInfoModal(type) {
             const modal = document.getElementById('info-modal');
             const titleEl = document.getElementById('modal-title');
             const contentEl = document.getElementById('modal-content');
-            
-            // Set content based on type
             if (type === 'privacy') {
                 titleEl.innerText = contentData[currentLang].privacy_title;
                 contentEl.innerHTML = contentData[currentLang].privacy_content;
@@ -1057,86 +978,80 @@
                 titleEl.innerText = contentData[currentLang].contact_title;
                 contentEl.innerHTML = contentData[currentLang].contact_content;
             }
-
             modal.classList.remove('hidden-modal');
             document.body.classList.add('overflow-hidden');
         }
 
         function closeInfoModal() {
-            const modal = document.getElementById('info-modal');
-            modal.classList.add('hidden-modal');
+            document.getElementById('info-modal').classList.add('hidden-modal');
             document.body.classList.remove('overflow-hidden');
         }
 
-        // Close modal when clicking outside
         document.getElementById('info-modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('info-modal')) {
-                closeInfoModal();
-            }
+            if (e.target === document.getElementById('info-modal')) closeInfoModal();
         });
 
-        // Initialize Lucide Icons
         lucide.createIcons();
-
-        // Update Year
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // Dark Mode Toggle Logic
-        const themeToggleBtns = document.querySelectorAll('#theme-toggle, #theme-toggle-mobile');
-        const html = document.documentElement;
-
-        // Check local storage or system preference on load
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        } else {
-            html.classList.remove('dark');
+        function isNightInKosovo() {
+            try {
+                const hour = new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}).split(',')[1].trim().split(':')[0];
+                const isPm = new Date().toLocaleString("en-US", {timeZone: "Europe/Belgrade"}).includes('PM');
+                const hourNum = parseInt(hour);
+                // Simple check: if PM and >= 6, or AM and < 6
+                if ((isPm && hourNum >= 6 && hourNum !== 12) || (!isPm && (hourNum < 6 || hourNum === 12))) return true;
+                return false;
+            } catch (e) {
+                const h = new Date().getHours();
+                return h >= 18 || h < 6;
+            }
         }
 
-        themeToggleBtns.forEach(btn => {
+        const html = document.documentElement;
+        function initTheme() {
+            if ('theme' in localStorage) {
+                localStorage.theme === 'dark' ? html.classList.add('dark') : html.classList.remove('dark');
+            } else {
+                if (isNightInKosovo()) html.classList.add('dark');
+            }
+        }
+        initTheme();
+
+        const themeBtns = document.querySelectorAll('#theme-toggle, #theme-toggle-mobile');
+        themeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 html.classList.toggle('dark');
-                if (html.classList.contains('dark')) {
-                    localStorage.theme = 'dark';
-                } else {
-                    localStorage.theme = 'light';
-                }
+                localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
             });
         });
 
-        // Navbar Scroll Effect
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 20) {
-                navbar.classList.add('bg-white/90', 'dark:bg-slate-900/90', 'backdrop-blur-md', 'border-b', 'border-gray-200', 'dark:border-slate-800');
+                navbar.classList.add('bg-white/80', 'dark:bg-[#0B1120]/80', 'backdrop-blur-xl', 'border-b', 'border-gray-200/50', 'dark:border-slate-800/50', 'shadow-sm');
                 navbar.classList.remove('bg-transparent');
             } else {
-                navbar.classList.remove('bg-white/90', 'dark:bg-slate-900/90', 'backdrop-blur-md', 'border-b', 'border-gray-200', 'dark:border-slate-800');
+                navbar.classList.remove('bg-white/80', 'dark:bg-[#0B1120]/80', 'backdrop-blur-xl', 'border-b', 'border-gray-200/50', 'dark:border-slate-800/50', 'shadow-sm');
                 navbar.classList.add('bg-transparent');
             }
         });
 
-        // 3D Tilt Effect (Logo)
-        const container = document.getElementById('logo-container');
-        const wrapper = document.getElementById('logo-wrapper');
-
-        if (container && wrapper) {
-            container.addEventListener('mousemove', (e) => {
-                const rect = container.getBoundingClientRect();
+        const logoContainer = document.getElementById('logo-container');
+        const logoWrapper = document.getElementById('logo-wrapper');
+        if (logoContainer && logoWrapper) {
+            logoContainer.addEventListener('mousemove', (e) => {
+                const rect = logoContainer.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
-                
-                // Rotation logic
-                const rotateX = ((y - centerY) / centerY) * -30; // Max rotation X
-                const rotateY = ((x - centerX) / centerX) * 30; // Max rotation Y
-
-                wrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                const rotateX = ((y - centerY) / centerY) * -30; 
+                const rotateY = ((x - centerX) / centerX) * 30;
+                logoWrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
-
-            container.addEventListener('mouseleave', () => {
-                wrapper.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+            logoContainer.addEventListener('mouseleave', () => {
+                logoWrapper.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
             });
         }
     </script>

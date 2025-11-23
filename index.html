@@ -709,8 +709,11 @@
                     clearInterval(element.dataset.interval);
                 }
                 
-                iteration += 1 / 3; // Speed of decoding
-            }, 30);
+                // --- SPEED FIX ---
+                // Old: iteration += 1 / 3; (Slow)
+                // New: iteration += 1; (Fast, resolves 1 char per tick)
+                iteration += 1; 
+            }, 20); // Faster interval (20ms instead of 30ms)
         }
 
         // --- KOSOVO POPUP LOGIC ---

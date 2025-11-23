@@ -27,6 +27,7 @@
                     animation: {
                         'pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
                         'fade-in': 'fadeIn 0.8s ease-in-out forwards',
+                        'bounce-gentle': 'bounce-gentle 2s infinite',
                     },
                     keyframes: {
                         pop: {
@@ -36,6 +37,10 @@
                         fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
+                        },
+                        'bounce-gentle': {
+                            '0%, 100%': { transform: 'translateY(-5%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                            '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
                         }
                     }
                 }
@@ -119,13 +124,55 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: top center;
+            object-fit: fill; /* Ensures exact fit to container */
             opacity: 0;
-            transition: opacity 1s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
+            cursor: pointer;
         }
         .slide-image.active {
             opacity: 1;
+            z-index: 10;
+        }
+
+        /* Click Me Badge */
+        .click-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        #mockup-wrapper:hover .click-badge {
+            opacity: 1;
+        }
+
+        /* --- NEW: Funny Logo Animation --- */
+        @keyframes gap-snap {
+            0%, 30% { 
+                transform: translateX(15px) rotate(12deg); /* The Gap: LIKA | | pos */
+            }
+            40% { 
+                transform: translateX(-6px) scale(0.8, 1.2); /* The Crash (Squash) */
+            }
+            50% { 
+                transform: translateX(4px) scale(1.1, 0.9); /* The Rebound (Stretch) */
+            }
+            60% { 
+                transform: translateX(0) scale(1); /* Back to normal */
+            }
+            100% { 
+                transform: translateX(0); /* Pause before repeating */
+            }
+        }
+
+        .logo-pos-anim {
+            display: inline-block;
+            animation: gap-snap 4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+            transform-origin: bottom center;
         }
     </style>
 </head>
@@ -192,8 +239,9 @@
                             class="w-full h-full object-contain drop-shadow-xl"
                         >
                     </div>
+                    <!-- LOGO TEXT MODIFIED: Removed Blue, Added Animation Class -->
                     <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
-                        LIKA<span class="text-blue-600">pos</span>
+                        LIKA<span class="logo-pos-anim">pos</span>
                     </span>
                 </div>
 
@@ -277,18 +325,26 @@
 
             <!-- Mockup / Visual (With Slider & Tilt) -->
             <div class="mockup-perspective max-w-5xl mx-auto px-4 sm:px-0 pb-12">
-                <div id="mockup-wrapper" class="mockup-tilt relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer">
+                <div id="mockup-wrapper" class="mockup-tilt relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer" onclick="nextSlide()">
                    
                    <!-- Mockup Window Header -->
                    <div class="h-8 w-full border-b flex items-center px-4 gap-2 bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors z-20 relative">
                      <div class="w-3 h-3 rounded-full bg-red-500"></div>
                      <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                      <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                     <div class="ml-4 text-xs text-gray-400 font-mono select-none">LIKApos - Retail Dashboard</div>
+                     <!-- CHANGED TEXT HERE -->
+                     <div class="ml-4 text-xs text-gray-400 font-mono select-none">LIKApos - FREE</div>
                    </div>
                    
-                   <!-- Slider Body -->
-                   <div class="relative w-full aspect-[16/10] md:aspect-[16/9] bg-slate-900 overflow-hidden">
+                   <!-- CLICK ME Badge -->
+                   <div class="click-badge animate-bounce-gentle">
+                       <span class="bg-black/75 text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm shadow-xl flex items-center gap-1">
+                           <i data-lucide="mouse-pointer-2" class="w-3 h-3"></i> CLICK ME
+                       </span>
+                   </div>
+
+                   <!-- Slider Body - Aspect Ratio Changed to aspect-video (16/9) for perfect fit -->
+                   <div class="relative w-full aspect-video bg-slate-900 overflow-hidden">
                        <!-- Images Container -->
                        <div id="slider-container" class="w-full h-full relative">
                            <!-- Images will be injected by JS -->
@@ -346,7 +402,7 @@
     <section class="py-20 bg-gray-50 dark:bg-slate-900 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
             
-            <!-- Detail Block 1 -->
+            <!-- Detail Block 1: POS TERMINAL -->
             <div class="flex flex-col md:flex-row items-center gap-12">
                 <div class="flex-1 space-y-6">
                     <div class="inline-flex items-center gap-2 text-blue-500 font-bold uppercase tracking-wider text-sm">
@@ -372,12 +428,17 @@
                         </li>
                     </ul>
                 </div>
-                <div class="flex-1 h-64 rounded-2xl flex items-center justify-center bg-blue-100 dark:bg-slate-800 transition-colors">
-                    <i data-lucide="credit-card" class="w-16 h-16 opacity-20 text-slate-900 dark:text-white"></i>
+                <!-- IMAGE UPDATED (POS) -->
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                    <img 
+                        src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/2.jpg?updatedAt=1763932046251" 
+                        alt="POS Terminal Interface" 
+                        class="w-full h-auto object-cover"
+                    >
                 </div>
             </div>
 
-            <!-- Detail Block 2 -->
+            <!-- Detail Block 2: INVENTORY -->
             <div class="flex flex-col md:flex-row-reverse items-center gap-12">
                 <div class="flex-1 space-y-6">
                     <div class="inline-flex items-center gap-2 text-purple-500 font-bold uppercase tracking-wider text-sm">
@@ -399,12 +460,17 @@
                         </li>
                     </ul>
                 </div>
-                <div class="flex-1 h-64 rounded-2xl flex items-center justify-center bg-purple-100 dark:bg-slate-800 transition-colors">
-                    <i data-lucide="users" class="w-16 h-16 opacity-20 text-slate-900 dark:text-white"></i>
+                <!-- IMAGE UPDATED (INVENTORY) -->
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                    <img 
+                        src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043" 
+                        alt="Inventory Management Interface" 
+                        class="w-full h-auto object-cover"
+                    >
                 </div>
             </div>
 
-            <!-- Detail Block 3 -->
+            <!-- Detail Block 3: SYSTEM DATA -->
             <div class="flex flex-col md:flex-row items-center gap-12">
                 <div class="flex-1 space-y-6">
                     <div class="inline-flex items-center gap-2 text-red-500 font-bold uppercase tracking-wider text-sm">
@@ -430,10 +496,47 @@
                         </li>
                     </ul>
                 </div>
-                <div class="flex-1 h-64 rounded-2xl flex items-center justify-center bg-red-100 dark:bg-slate-800 transition-colors">
-                    <i data-lucide="shield-alert" class="w-16 h-16 opacity-20 text-slate-900 dark:text-white"></i>
+                <!-- IMAGE UPDATED (SYSTEM DATA) -->
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                    <img 
+                        src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723" 
+                        alt="System Settings Interface" 
+                        class="w-full h-auto object-cover"
+                    >
                 </div>
             </div>
+
+            <!-- Detail Block 4: DARK MODE (NEW) -->
+            <div class="flex flex-col md:flex-row-reverse items-center gap-12">
+                <div class="flex-1 space-y-6">
+                    <div class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">
+                        <i data-lucide="moon" class="w-4 h-4"></i> <span data-i18n="det_dark_label">Appearance</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-900 dark:text-white" data-i18n="det_dark_title">Stunning Dark Mode</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_1">Reduces eye strain during long shifts.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_2">Sleek, modern contrast for better visibility.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-1 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0 text-white"><i data-lucide="check" class="w-3 h-3"></i></div>
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="det_dark_3">Toggle instantly with a single click.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-slate-700 transform transition-transform hover:scale-[1.02]">
+                    <img 
+                        src="https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161" 
+                        alt="Dark Mode Interface" 
+                        class="w-full h-auto object-cover"
+                    >
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -526,7 +629,7 @@
         const sliderImages = [
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/1.jpg?updatedAt=1763932046790",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/2.jpg?updatedAt=1763932046251",
-            // "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161", // Skipped (Similair to 2)
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161", // ADDED NEW IMAGE
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723",
             "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/6.jpg?updatedAt=1763932045136"
@@ -534,10 +637,14 @@
 
         let currentSlide = 0;
         const slideInterval = 4000; // 4 seconds
+        let sliderIntervalId;
 
         function initSlider() {
             const container = document.getElementById('slider-container');
             if (!container) return;
+
+            // Clear existing if any (re-init safety)
+            container.innerHTML = '';
 
             // Create Image Elements
             sliderImages.forEach((src, index) => {
@@ -548,15 +655,27 @@
                 container.appendChild(img);
             });
 
-            // Start Rotation
-            setInterval(() => {
-                const images = document.querySelectorAll('.slide-image');
-                images[currentSlide].classList.remove('active');
-                
-                currentSlide = (currentSlide + 1) % images.length;
-                
-                images[currentSlide].classList.add('active');
-            }, slideInterval);
+            startAutoSlide();
+        }
+
+        function startAutoSlide() {
+            if (sliderIntervalId) clearInterval(sliderIntervalId);
+            sliderIntervalId = setInterval(nextSlide, slideInterval);
+        }
+
+        // Exposed Next Slide Function (Called by Click)
+        function nextSlide() {
+            const images = document.querySelectorAll('.slide-image');
+            if(images.length === 0) return;
+
+            images[currentSlide].classList.remove('active');
+            
+            currentSlide = (currentSlide + 1) % images.length;
+            
+            images[currentSlide].classList.add('active');
+
+            // Reset timer on manual interaction
+            startAutoSlide();
         }
         
         // Call init on load
@@ -806,6 +925,12 @@
                 det_sys_2: "Tax Settings: Exclusive/Inclusive rates & Custom Currency",
                 det_sys_3: "Danger Zone: Backup, Import, Factory Reset",
                 det_sys_4: "Privacy First: No data is ever sent to a cloud server.",
+                // NEW TRANSLATIONS FOR DARK MODE
+                det_dark_label: "Appearance",
+                det_dark_title: "Stunning Dark Mode",
+                det_dark_1: "Reduces eye strain during long shifts.",
+                det_dark_2: "Sleek, modern contrast for better visibility.",
+                det_dark_3: "Toggle instantly with a single click.",
                 download_title: "Get Started for Free",
                 download_desc: "Choose how you want to use LIKApos. No hidden fees, no credit cards required.",
                 card_web_title: "Web App",
@@ -860,6 +985,12 @@
                 det_sys_2: "Cilësimet e Taksave: Ekskluzive/Përfshirëse & Valutë e Personalizuar",
                 det_sys_3: "Zona e Rrezikut: Rezervim, Import, Rikthim në Gjendje Fabrike",
                 det_sys_4: "Privatësia e Para: Asnjë e dhënë nuk dërgohet në server.",
+                // NEW TRANSLATIONS FOR DARK MODE
+                det_dark_label: "Pamja",
+                det_dark_title: "Dark Mode i Mrekullueshëm",
+                det_dark_1: "Zvogëlon lodhjen e syve gjatë turneve të gjata.",
+                det_dark_2: "Kontrast modern për dukshmëri më të mirë.",
+                det_dark_3: "Ndërrohet menjëherë me një klikim.",
                 download_title: "Fillo Falas",
                 download_desc: "Zgjidhni si doni ta përdorni LIKApos. Pa tarifa të fshehura, pa karta krediti.",
                 card_web_title: "Web App",

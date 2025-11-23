@@ -484,63 +484,177 @@
         // --- CONTENT DATA (Long Texts) ---
         const contentData = {
             en: {
-                privacy_title: "Privacy Policy & Terms of Use",
+                privacy_title: "Privacy Policy & Terms of Service",
                 privacy_content: `
-                    <strong>1. Data Sovereignty & Local Storage</strong>
-                    LIKApos operates on a strict "Local-First" architecture. We do not own, store, transmit, or have access to your data. All databases, inventory records, and transaction logs reside solely on your local device (Browser Cache for Web App, Local File System for Desktop App).
+                    <div class="space-y-6">
+                        <div class="text-sm text-gray-500 border-b pb-2 mb-4">Effective Date: 24.11.2025</div>
 
-                    <strong>2. No Tracking or Analytics</strong>
-                    We do not utilize cookies, trackers, or analytics scripts to monitor user behavior. Your business operations remain completely private.
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">1. Privacy Policy</h3>
+                        
+                        <p><strong>1. Data Sovereignty & Local Storage</strong><br>
+                        LIKApos operates on a strict "Local-First" architecture. We do not own, store, transmit, process, or have access to your data. All databases, inventory records, customer details, and transaction logs reside solely on your local device (Browser Cache for the Web App; Local File System for the Desktop App).</p>
 
-                    <strong>3. Legal Jurisdiction</strong>
-                    This software and its usage are governed by the laws of the Republic of Kosovo.
+                        <p><strong>2. No Tracking or Analytics</strong><br>
+                        We respect your privacy. We do not utilize cookies, third-party trackers, or analytics scripts to monitor user behavior or harvest usage data. Your business operations remain completely private and offline (unless you choose to use the Web App, which relies on your browser's local environment).</p>
 
-                    <strong>4. Independent Status</strong>
-                    LIKApos is an independent open-source initiative and is not affiliated with, endorsed by, or connected to any government agency or entity.
+                        <p><strong>3. User Responsibility for Data Security</strong><br>
+                        Since LIKApos does not store your data on cloud servers, we cannot recover lost passwords or data. You are solely responsible for:
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Regularly backing up your database via the "Danger Zone" settings.</li>
+                            <li>Protecting your device from malware, theft, or unauthorized access.</li>
+                            <li>Ensuring your browser cache is not accidentally cleared if using the Web App.</li>
+                        </ul>
+                        </p>
 
-                    <strong>5. Limitation of Liability</strong>
-                    This software is provided "as is", without warranty of any kind, express or implied. By using LIKApos, you acknowledge that you use it at your own risk. The developers are not liable for any data loss, financial discrepancies, tax compliance issues, or misuse of the software. You are solely responsible for your own data management.
+                        <p><strong>4. Changes to Policy</strong><br>
+                        We reserve the right to modify this privacy policy at any time. Continued use of the software constitutes acceptance of these changes.</p>
 
-                    <strong>6. Intended Use</strong>
-                    This application is built for legitimate business management purposes. It is not intended to facilitate illegal activities or harm any party.
+                        <hr class="border-gray-200 dark:border-gray-700 my-6">
+
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">2. Terms of Service</h3>
+
+                        <p><strong>1. Acceptance of Terms</strong><br>
+                        By downloading, accessing, or using LIKApos, you agree to be bound by these Terms of Service. If you do not agree, do not use the software.</p>
+
+                        <p><strong>2. License and Usage</strong><br>
+                        LIKApos is provided as free software. You are granted a revocable, non-exclusive license to use the software for personal or commercial business purposes. You may not claim ownership of the source code or resell the software under a different name without explicit permission.</p>
+
+                        <p><strong>3. "As Is" Disclaimer</strong><br>
+                        This software is provided "as is" and "as available," without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee that the software will be error-free or uninterrupted.</p>
+
+                        <p><strong>4. Limitation of Liability</strong><br>
+                        To the maximum extent permitted by applicable law, the developers of LIKApos shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use this software. This includes, but is not limited to:
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Loss of data, profits, revenue, or business reputation.</li>
+                            <li>Errors in tax calculations or inventory management.</li>
+                            <li>Hardware damage or system failure.</li>
+                            <li>Fines or legal penalties incurred due to non-compliance with local fiscal laws.</li>
+                        </ul>
+                        </p>
+
+                        <p><strong>5. Legal Compliance</strong><br>
+                        You are solely responsible for ensuring that your use of LIKApos complies with all local, state, and international laws applicable to your business, including the laws of the Republic of Kosovo if applicable. It is your responsibility to verify that the generated invoices/receipts meet your country's fiscal requirements.</p>
+
+                        <p><strong>6. Governing Law</strong><br>
+                        These terms shall be governed by and construed in accordance with the laws of the Republic of Kosovo, without regard to its conflict of law provisions.</p>
+                    </div>
                 `,
                 contact_title: "Contact Support",
                 contact_content: `
-                    For support, feedback, or inquiries, please contact us via:
+                    <div class="space-y-6">
+                        <p class="text-gray-500">For inquiries regarding software bugs, installation issues, or feedback.</p>
 
-                    <strong>Instagram:</strong> <a href="https://instagram.com/lika.apps" target="_blank" class="text-blue-500 hover:underline">@lika.apps</a>
-                    
-                    <strong>Email:</strong> <a href="mailto:likapps@proton.me" class="text-blue-500 hover:underline">likapps@proton.me</a>
+                        <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg space-y-3">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="mail" class="w-5 h-5 text-blue-500"></i>
+                                <a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i>
+                                <a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Service Level Agreement</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li><strong>Response Time:</strong> We aim to respond within 24–72 hours.</li>
+                                <li><strong>Scope:</strong> Technical support for software functionality only.</li>
+                            </ul>
+                        </div>
+
+                        <div class="border-l-4 border-yellow-500 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
+                            <h4 class="font-bold text-yellow-700 dark:text-yellow-500 text-sm mb-1">Important Exclusions</h4>
+                            <p class="text-xs text-yellow-800 dark:text-yellow-400">We DO NOT provide fiscal/tax advice, hardware repair, or data recovery services. You are responsible for your own backups.</p>
+                        </div>
+                    </div>
                 `
             },
             sq: {
-                privacy_title: "Politika e Privatësisë & Kushtet e Përdorimit",
+                privacy_title: "Politika e Privatësisë & Kushtet e Shërbimit",
                 privacy_content: `
-                    <strong>1. Sovraniteti i të Dhënave & Ruajtja Lokale</strong>
-                    LIKApos funksionon me një arkitekturë strikte "Lokale-Së Pari". Ne nuk zotërojmë, ruajmë, transmetojmë ose kemi qasje në të dhënat tuaja. Të gjitha bazat e të dhënave, regjistrat e inventarit dhe transaksionet qëndrojnë vetëm në pajisjen tuaj.
+                    <div class="space-y-6">
+                        <div class="text-sm text-gray-500 border-b pb-2 mb-4">Data e Efektit: 24.11.2025</div>
 
-                    <strong>2. Pa Gjurmim ose Analitikë</strong>
-                    Ne nuk përdorim cookies, gjurmues ose skripte analitike për të monitoruar sjelljen e përdoruesit. Operacionet e biznesit tuaj mbeten plotësisht private.
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">1. Politika e Privatësisë</h3>
+                        
+                        <p><strong>1. Sovraniteti i të Dhënave & Ruajtja Lokale</strong><br>
+                        LIKApos funksionon mbi një arkitekturë strikte "Lokale-Së Pari". Ne nuk zotërojmë, ruajmë, transmetojmë, përpunojmë ose kemi qasje në të dhënat tuaja. Të gjitha bazat e të dhënave, regjistrat e inventarit, detajet e klientëve dhe regjistrat e transaksioneve qëndrojnë vetëm në pajisjen tuaj lokale (në "Browser Cache" për Web App; në Sistemin e Skedarëve Lokal për Aplikacionin Desktop).</p>
 
-                    <strong>3. Juridiksioni Ligjor</strong>
-                    Ky softuer dhe përdorimi i tij qeverisen nga ligjet e Republikës së Kosovës.
+                        <p><strong>2. Pa Gjurmim ose Analitikë</strong><br>
+                        Ne respektojmë privatësinë tuaj. Ne nuk përdorim "cookies", gjurmues të palëve të treta ose skripte analitike për të monitoruar sjelljen e përdoruesit ose për të mbledhur të dhëna mbi përdorimin. Operacionet e biznesit tuaj mbeten plotësisht private.</p>
 
-                    <strong>4. Statusi i Pavarur</strong>
-                    LIKApos është një iniciativë e pavarur me burim të hapur dhe nuk është e lidhur, e miratuar ose e lidhur me ndonjë agjenci apo ent qeveritar.
+                        <p><strong>3. Përgjegjësia e Përdoruesit për Sigurinë e të Dhënave</strong><br>
+                        Meqenëse LIKApos nuk i ruan të dhënat tuaja në serverë (cloud), ne nuk mund të rikuperojmë fjalëkalimet ose të dhënat e humbura. Ju jeni vetëm përgjegjës për:
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Krijimin e rregullt të kopjeve rezervë (backup) të bazës së të dhënave përmes cilësimeve në "Danger Zone".</li>
+                            <li>Mbrojtjen e pajisjes tuaj nga viruset, vjedhjet ose qasjet e paautorizuara.</li>
+                            <li>Sigurimin që "cache" i shfletuesit tuaj të mos fshihet aksidentalisht nëse përdorni Web App.</li>
+                        </ul>
+                        </p>
 
-                    <strong>5. Kufizimi i Përgjegjësisë</strong>
-                    Ky softuer ofrohet "siç është", pa asnjë lloj garancie. Duke përdorur LIKApos, ju pranoni se e përdorni atë në rrezikun tuaj. Zhvilluesit nuk janë përgjegjës për humbjen e të dhënave, mospërputhjet financiare ose keqpërdorimin e softuerit. Ju jeni përgjegjës vetëm për menaxhimin e të dhënave tuaja.
+                        <p><strong>4. Ndryshimet në Politikë</strong><br>
+                        Ne rezervojmë të drejtën për të modifikuar këtë politikë të privatësisë në çdo kohë. Përdorimi i vazhdueshëm i softuerit përbën pranimin e këtyre ndryshimeve.</p>
 
-                    <strong>6. Qëllimi i Përdorimit</strong>
-                    Ky aplikacion është ndërtuar për qëllime legjitime të menaxhimit të biznesit. Nuk ka për qëllim të lehtësojë aktivitetet e paligjshme ose të dëmtojë ndonjë palë.
+                        <hr class="border-gray-200 dark:border-gray-700 my-6">
+
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white uppercase">2. Kushtet e Shërbimit</h3>
+
+                        <p><strong>1. Pranimi i Kushteve</strong><br>
+                        Duke shkarkuar, qasur ose përdorur LIKApos, ju pranoni të jeni të lidhur nga këto Kushte të Shërbimit. Nëse nuk jeni dakord, mos e përdorni softuerin.</p>
+
+                        <p><strong>2. Licenca dhe Përdorimi</strong><br>
+                        LIKApos ofrohet si softuer falas. Ju jepet një licencë e revokueshme, jo-ekskluzive për të përdorur softuerin për qëllime personale ose komerciale biznesi. Ju nuk mund të pretendoni pronësinë e kodit burimor ose ta rishisni softuerin nën një emër tjetër pa leje të qartë.</p>
+
+                        <p><strong>3. Mohimi i Garancisë "Siç Është"</strong><br>
+                        Ky softuer ofrohet "siç është" dhe "siç është i disponueshëm", pa asnjë lloj garancie, të shprehur ose të nënkuptuar, përfshirë por jo kufizuar në garancitë për tregtueshmëri, përshtatshmëri për një qëllim të caktuar dhe mosshkelje. Ne nuk garantojmë që softueri do të jetë pa gabime ose pa ndërprerje.</p>
+
+                        <p><strong>4. Kufizimi i Përgjegjësisë</strong><br>
+                        Në masën maksimale të lejuar nga ligji në fuqi, zhvilluesit e LIKApos nuk do të jenë përgjegjës për asnjë dëm të drejtpërdrejtë, të tërthortë, aksidental ose pasojë që rrjedh nga përdorimi ose pamundësia për të përdorur këtë softuer. Kjo përfshin, por nuk kufizohet në:
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Humbjen e të dhënave, fitimeve, të ardhurave ose reputacionit të biznesit.</li>
+                            <li>Gabime në llogaritjet e taksave ose menaxhimin e inventarit.</li>
+                            <li>Dëmtimin e harduerit ose dështimin e sistemit.</li>
+                            <li>Gjoba ose ndëshkime ligjore të shkaktuara nga mospërputhja me ligjet lokale fiskale.</li>
+                        </ul>
+                        </p>
+
+                        <p><strong>5. Pajtueshmëria Ligjore</strong><br>
+                        Ju jeni vetëm përgjegjës për të siguruar që përdorimi juaj i LIKApos të jetë në përputhje me të gjitha ligjet lokale, shtetërore dhe ndërkombëtare të zbatueshme për biznesin tuaj, përfshirë ligjet e Republikës së Kosovës nëse është e aplikueshme. Është përgjegjësia juaj të verifikoni që faturat/kuponat e gjeneruar plotësojnë kërkesat fiskale të vendit tuaj.</p>
+
+                        <p><strong>6. Ligji në Fuqi</strong><br>
+                        Këto kushte do të qeverisen dhe interpretohen në përputhje me ligjet e Republikës së Kosovës, pa marrë parasysh dispozitat e konfliktit të ligjeve.</p>
+                    </div>
                 `,
                 contact_title: "Kontakto Mbështetjen",
                 contact_content: `
-                    Për mbështetje, komente ose pyetje, ju lutemi na kontaktoni përmes:
+                    <div class="space-y-6">
+                        <p class="text-gray-500">Për pyetje lidhur me gabimet e softuerit (bugs), problemet e instalimit ose sugjerime, ju lutemi na kontaktoni përmes:</p>
 
-                    <strong>Instagram:</strong> <a href="https://instagram.com/lika.apps" target="_blank" class="text-blue-500 hover:underline">@lika.apps</a>
-                    
-                    <strong>Email:</strong> <a href="mailto:likapps@proton.me" class="text-blue-500 hover:underline">likapps@proton.me</a>
+                        <div class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg space-y-3">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="mail" class="w-5 h-5 text-blue-500"></i>
+                                <a href="mailto:likapps@proton.me" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">likapps@proton.me</a>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="instagram" class="w-5 h-5 text-pink-500"></i>
+                                <a href="https://instagram.com/lika.apps" target="_blank" class="text-slate-900 dark:text-white hover:text-blue-500 font-medium">@lika.apps</a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Marrëveshja e Nivelit të Shërbimit</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li><strong>Koha e Përgjigjes:</strong> Ne synojmë të përgjigjemi brenda 24–72 orëve.</li>
+                                <li><strong>Fusha e Mbështetjes:</strong> Ne ofrojmë rreptësisht mbështetje teknike vetëm për funksionalitetin e softuerit.</li>
+                            </ul>
+                        </div>
+
+                        <div class="border-l-4 border-yellow-500 pl-4 py-1 bg-yellow-50 dark:bg-yellow-900/20">
+                            <h4 class="font-bold text-yellow-700 dark:text-yellow-500 text-sm mb-1">Përjashtime të Rëndësishme</h4>
+                            <p class="text-xs text-yellow-800 dark:text-yellow-400">Ne NUK ofrojmë këshilla fiskale, tatimore ose ligjore. Ne NUK ofrojmë riparim harduerik ose shërbime të rikuperimit të të dhënave. Ju jeni përgjegjës për "backups" tuaj.</p>
+                        </div>
+                    </div>
                 `
             }
         };

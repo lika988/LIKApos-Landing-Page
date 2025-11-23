@@ -26,11 +26,16 @@
                     },
                     animation: {
                         'pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'fade-in': 'fadeIn 0.8s ease-in-out forwards',
                     },
                     keyframes: {
                         pop: {
                             '0%': { transform: 'scale(1)' },
                             '100%': { transform: 'scale(1.1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
                         }
                     }
                 }
@@ -45,6 +50,16 @@
         }
         .preserve-3d {
             transform-style: preserve-3d;
+        }
+
+        /* Mockup Specific 3D settings */
+        .mockup-perspective {
+            perspective: 2000px; /* Lower perspective for subtle depth */
+        }
+        .mockup-tilt {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out; /* Very fast response for mouse tracking */
+            will-change: transform;
         }
         
         /* Modal Styles */
@@ -96,6 +111,21 @@
         .lika-link:hover::after {
             transform: scaleX(1);
             transform-origin: bottom left;
+        }
+        
+        /* Image Slider Transitions */
+        .slide-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .slide-image.active {
+            opacity: 1;
         }
     </style>
 </head>
@@ -245,58 +275,29 @@
                 </a>
             </div>
 
-            <!-- Mockup / Visual -->
-            <div class="relative mx-auto max-w-5xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 transition-colors duration-300">
-               <!-- Mockup Window Header -->
-               <div class="h-8 w-full border-b flex items-center px-4 gap-2 bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors">
-                 <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                 <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                 <div class="w-3 h-3 rounded-full bg-green-500"></div>
-               </div>
-               
-               <!-- Mockup Body -->
-               <div class="grid md:grid-cols-12 gap-0 h-[400px] md:h-[500px]">
-                  <!-- Fake Sidebar -->
-                  <div class="hidden md:flex col-span-1 border-r flex-col items-center py-4 gap-6 bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors">
-                      <i data-lucide="layout-grid" class="w-6 h-6 text-blue-500"></i>
-                      <i data-lucide="shopping-cart" class="w-6 h-6 text-gray-400"></i>
-                      <i data-lucide="users" class="w-6 h-6 text-gray-400"></i>
-                      <i data-lucide="settings" class="w-6 h-6 text-gray-400"></i>
-                  </div>
-                  
-                  <!-- Fake Content - Products Grid -->
-                  <div class="col-span-12 md:col-span-7 p-6 overflow-hidden">
-                    <div class="flex justify-between mb-4">
-                      <div class="h-8 w-48 rounded bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="h-8 w-8 rounded bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-4">
-                      <!-- Grid Items -->
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                      <div class="aspect-square rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                    </div>
-                  </div>
-                  
-                  <!-- Fake Cart -->
-                  <div class="hidden md:flex col-span-4 border-l p-4 flex-col bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors">
-                     <div class="h-8 w-full rounded mb-4 bg-gray-200 dark:bg-slate-700 animate-pulse"></div>
-                     <div class="space-y-2 flex-1">
-                        <div class="h-12 w-full rounded bg-white dark:bg-slate-800 animate-pulse border border-gray-100 dark:border-slate-800"></div>
-                        <div class="h-12 w-full rounded bg-white dark:bg-slate-800 animate-pulse border border-gray-100 dark:border-slate-800"></div>
-                        <div class="h-12 w-full rounded bg-white dark:bg-slate-800 animate-pulse border border-gray-100 dark:border-slate-800"></div>
-                     </div>
-                     <div class="h-16 w-full bg-blue-600 rounded-lg mt-4 flex items-center justify-center text-white font-bold tracking-wider uppercase">
-                         Charge
-                     </div>
-                  </div>
-               </div>
+            <!-- Mockup / Visual (With Slider & Tilt) -->
+            <div class="mockup-perspective max-w-5xl mx-auto px-4 sm:px-0 pb-12">
+                <div id="mockup-wrapper" class="mockup-tilt relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 transition-colors duration-300 group cursor-pointer">
+                   
+                   <!-- Mockup Window Header -->
+                   <div class="h-8 w-full border-b flex items-center px-4 gap-2 bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700 transition-colors z-20 relative">
+                     <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                     <div class="ml-4 text-xs text-gray-400 font-mono select-none">LIKApos - Retail Dashboard</div>
+                   </div>
+                   
+                   <!-- Slider Body -->
+                   <div class="relative w-full aspect-[16/10] md:aspect-[16/9] bg-slate-900 overflow-hidden">
+                       <!-- Images Container -->
+                       <div id="slider-container" class="w-full h-full relative">
+                           <!-- Images will be injected by JS -->
+                       </div>
+                       
+                       <!-- Gloss/Sheen Effect -->
+                       <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20"></div>
+                   </div>
+                </div>
             </div>
         </div>
     </section>
@@ -521,6 +522,72 @@
 
     <!-- Scripts -->
     <script>
+        // --- SLIDER CONFIG & LOGIC ---
+        const sliderImages = [
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/1.jpg?updatedAt=1763932046790",
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/2.jpg?updatedAt=1763932046251",
+            // "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/3.jpg?updatedAt=1763932044161", // Skipped (Similair to 2)
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/4.jpg?updatedAt=1763932047043",
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/5.jpg?updatedAt=1763932046723",
+            "https://ik.imagekit.io/bufi/Likapos%20Pic/JPG/6.jpg?updatedAt=1763932045136"
+        ];
+
+        let currentSlide = 0;
+        const slideInterval = 4000; // 4 seconds
+
+        function initSlider() {
+            const container = document.getElementById('slider-container');
+            if (!container) return;
+
+            // Create Image Elements
+            sliderImages.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = `slide-image ${index === 0 ? 'active' : ''}`;
+                img.alt = `LIKApos Screenshot ${index + 1}`;
+                container.appendChild(img);
+            });
+
+            // Start Rotation
+            setInterval(() => {
+                const images = document.querySelectorAll('.slide-image');
+                images[currentSlide].classList.remove('active');
+                
+                currentSlide = (currentSlide + 1) % images.length;
+                
+                images[currentSlide].classList.add('active');
+            }, slideInterval);
+        }
+        
+        // Call init on load
+        document.addEventListener('DOMContentLoaded', initSlider);
+
+
+        // --- MOCKUP TILT LOGIC ---
+        const mockupWrapper = document.getElementById('mockup-wrapper');
+        
+        if(mockupWrapper) {
+            mockupWrapper.addEventListener('mousemove', (e) => {
+                const rect = mockupWrapper.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Reduced rotation angles for a subtler "Professional" feel
+                const rotateX = ((y - centerY) / centerY) * -5; 
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                mockupWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            mockupWrapper.addEventListener('mouseleave', () => {
+                mockupWrapper.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            });
+        }
+
+
         // --- CONTENT DATA (Long Texts) ---
         const contentData = {
             en: {
@@ -917,7 +984,7 @@
             }
         });
 
-        // 3D Tilt Effect
+        // 3D Tilt Effect (Logo)
         const container = document.getElementById('logo-container');
         const wrapper = document.getElementById('logo-wrapper');
 
